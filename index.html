@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Family English</title>
+<meta name="theme-color" content="#E3F2FD">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="brand">🌱 My Family English</div>
+  <div class="kids" id="kids"></div>
+</div></header>
+<nav class="nav" id="nav" aria-label="主選單"></nav>
+<main class="wrap" id="view"></main>
+
+<!-- 家長鎖：不透明、不能點空白處關閉、X 放大置右上 -->
+<div class="modal" id="gate" role="dialog" aria-modal="true" aria-label="家長鎖"><div class="box">
+  <button class="x" id="gateX" aria-label="關閉">✕</button>
+  <h2>🔒 家長鎖</h2>
+  <p>請解出 x：</p>
+  <div class="eq" id="gateEq"></div>
+  <input type="text" id="gateIn" class="gate-in" inputmode="numeric" autocomplete="off" aria-label="答案">
+  <p><button class="btn green" id="gateOk">確認</button></p>
+</div></div>
+
+<div class="modal" id="resist" role="dialog" aria-modal="true" aria-label="孩子今天不想"><div class="box">
+  <button class="x" id="resistX" aria-label="關閉">✕</button>
+  <div id="resistBody"></div>
+</div></div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="data/phrases.js"></script>
+<script src="data/lessons.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
