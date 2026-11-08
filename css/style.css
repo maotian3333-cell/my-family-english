@@ -23,7 +23,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 /* nav */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--bg2);border-top:3px solid var(--line);display:flex;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
-.nav button{background:none;border:0;border-radius:16px;padding:6px 10px;font-size:.8rem;display:flex;flex-direction:column;align-items:center;gap:0;min-width:58px}
+.nav button{background:none;border:0;border-radius:16px;padding:6px 2px;font-size:.75rem;display:flex;flex-direction:column;align-items:center;gap:0;flex:1;min-width:0}
 .nav button .i{font-size:1.4rem;line-height:1.2}
 .nav button.on{background:var(--yellow);font-weight:800}
 @media(min-width:760px){
@@ -110,3 +110,26 @@ textarea{min-height:90px}
 .jelly{animation:jelly 3s infinite}
 @media(prefers-reduced-motion:reduce){.jelly{animation:none}}
 .mon{display:inline-block}
+
+/* picture cards */
+.wgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));margin-top:12px}
+.wcard{background:#fff;border:3px solid var(--line);border-radius:var(--r);padding:12px 8px;text-align:center;cursor:pointer;box-shadow:0 4px 0 var(--shadow)}
+.wcard.on{background:#FFF3C4}
+.wcard .pic{display:block;font-size:3.4rem;line-height:1.2;height:64px}
+.wcard .pic.svg svg{width:64px;height:64px}
+.wcard .we{font-weight:800;font-size:1.15rem;margin-top:6px}
+.wcard .wz{color:var(--ink2);font-size:.95rem}
+.wcard .ws{margin-top:6px;font-size:.85rem;background:var(--bg2);border-radius:12px;padding:4px 6px}
+.wcard .spk{width:40px;height:40px;font-size:1rem}
+.tray{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin:8px 0}
+.wcard.big .pic{font-size:4.6rem;height:88px}.wcard.big .pic.svg svg{width:84px;height:84px}
+.wcard.big .ws{font-size:1rem}
+@media print{
+  .top,.nav,.noprint,.toast,.modal{display:none!important}
+  body{background:#fff;padding:0}
+  .wrap{max-width:none;padding:0}
+  .wgrid{grid-template-columns:repeat(3,1fr);gap:8px}
+  .wcard{break-inside:avoid;box-shadow:none;border-width:2px;padding:18px 8px}
+  .wcard .pic{font-size:5rem;height:90px}.wcard .pic.svg svg{width:88px;height:88px}
+  .wcard .we{font-size:1.5rem}
+}
