@@ -3,6 +3,9 @@
   "use strict";
   var SCENES = window.MFE_SCENES, LESSONS = window.MFE_LESSONS, GUIDE = window.MFE_GUIDE;
   var KEY = "mfe_v1";
+  var WCATS = window.MFE_WORD_CATS || [], PATS = window.MFE_PATTERNS || [], LCARDS = window.MFE_LESSON_CARDS || {};
+  var WORD = {};
+  WCATS.forEach(function (c) { c.words.forEach(function (w) { WORD[w[0]] = w; }); });
   var STATUS = ["新", "學習中", "已會"];
   var PHRASE = {};
   SCENES.forEach(function (s) { s.phrases.forEach(function (p) { p.scene = s.id; PHRASE[p.id] = p; }); });
@@ -154,6 +157,7 @@
     h += '<div class="card soft"><div class="muted">階段 ' + l.stage + "</div><h1>" + l.icon + " " + l.id + " " + esc(l.title) + "</h1><p><b>目標：</b>" + esc(l.goal) + "</p>" +
       '<div class="row"><button class="btn green" data-played="unit">✅ 一起玩過</button>' + (c.unit === l.id ? '<span class="tag y" style="align-self:center">目前單元</span>' : '<button class="btn blue" data-setunit="' + l.id + '">設為目前單元</button>') +
       '<button class="btn orange" data-resist="1">🙅 孩子今天不想</button></div></div>';
+    if (LCARDS[l.id]) h += '<div class="card"><button class="btn blue" data-go="cards/' + LCARDS[l.id].pat + "/" + LCARDS[l.id].cat + '">🃏 用圖卡練習這個單元</button> <span class="muted">有圖、有發音、自動組好完整句</span></div>';
     h += '<div class="two"><div>';
     h += '<div class="card"><h2>句子</h2><p class="muted">整句記憶：先當「情境配對」學會，不要求換詞。</p>' + lessonPhrases(l, c) +
       (l.words.length ? "<h3>單字</h3>" + list(l.words) : "") + "</div>";
@@ -171,6 +175,57 @@
     var k = l.kid;
     h += "<details><summary>孩子模式預留（目前只是參考）</summary><ul><li><b>主角：</b>" + esc(k.hero) + "</li><li><b>按鈕：</b>" + esc(k.buttons) + "</li><li><b>遊戲：</b>" + esc(k.game) + "</li><li><b>色系：</b>" + esc(k.palette) + "</li><li>" + esc(k.note) + "</li></ul></details>";
     h += '<div class="row">' + (i > 0 ? '<button class="btn white" data-go="unit/' + LESSONS[i - 1].id + '">← ' + LESSONS[i - 1].id + "</button>" : "") + (i < LESSONS.length - 1 ? '<button class="btn white" data-go="unit/' + LESSONS[i + 1].id + '">' + LESSONS[i + 1].id + " →</button>" : "") + "</div>";
+    return h;
+  }
+
+  /* ---------- 圖卡 ---------- */
+  var cardPat = "give_me", cardCat = "fruit", picked = [];
+  function pic(w) {
+    var p = w[3];
+    if (p.indexOf("svg:") === 0) return '<span class="pic svg">' + ((window.MFE_SVG || {})[p.slice(4)] || "") + "</span>";
+    return '<span class="pic">' + p + "</span>";
+  }
+  function art(w) { if (w[4] === "u" || w[4] === "p") return w[1]; return (/^[aeiou]/i.test(w[1]) ? "an " : "a ") + w[1]; }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function sentence(pat, w, w2) {
+    var t = w[4], n = w[1];
+    if (pat === "give_me") return "Give me " + art(w) + ", please.";
+    if (pat === "here_is") return (t === "p" ? "Here are your " : "Here is your ") + n + ".";
+    if (pat === "where_is") return (t === "p" ? "Where are the " : "Where is the ") + n + "?";
+    if (pat === "this_is") return t === "p" ? "These are " + n + "." : "This is " + art(w) + ".";
+    if (pat === "i_want") return "I want " + art(w) + ".";
+    if (pat === "or_choice") return w2 ? cap(n) + " or " + w2[1] + "?" : "";
+    return n;
+  }
+  function viewCards() {
+    var pat = PATS.filter(function (p) { return p.id === cardPat; })[0] || PATS[0];
+    var cat = WCATS.filter(function (c) { return c.id === cardCat; })[0] || WCATS[0];
+    var isOr = pat.id === "or_choice";
+    var h = '<div class="noprint"><h1>🃏 圖卡</h1><p class="muted">選一個句型、一個類別，點卡片放進「今日圖卡」，照著唸即可。🔊 可聽單字發音，💬 可聽完整句。</p>';
+    h += '<div class="row" style="margin-bottom:8px">' + PATS.map(function (p) { return '<button class="btn small ' + (p.id === pat.id ? "" : "white") + '" data-pat="' + p.id + '">' + esc(p.name) + "</button>"; }).join("") + "</div>";
+    h += '<p class="muted"><b>' + esc(pat.zh) + "</b>　" + esc(pat.hint) + "</p>";
+    h += '<div class="row" style="margin-bottom:12px">' + WCATS.map(function (c) { return '<button class="btn small ' + (c.id === cat.id ? "blue" : "white") + '" data-wcat="' + c.id + '">' + c.icon + " " + esc(c.name) + "</button>"; }).join("") + "</div>";
+    var max = isOr ? 2 : 4, ws = picked.map(function (id) { return WORD[id]; }).filter(Boolean);
+    h += '<div class="card warm"><h2>今日圖卡 <span class="muted" style="font-weight:400">（最多 ' + max + " 張）</span></h2>";
+    if (!ws.length) {
+      h += '<p class="muted">還沒選。點下面的卡片，或</p>';
+    } else {
+      h += '<div class="tray">' + ws.map(function (w, i) {
+        var s = isOr ? (i === 0 && ws[1] ? sentence("or_choice", ws[0], ws[1]) : "") : sentence(pat.id, w);
+        return '<div class="wcard big on">' + pic(w) + '<div class="we">' + esc(w[1]) + '</div><div class="wz">' + esc(w[2]) + "</div>" + (s ? '<div class="ws">' + esc(s) + ' <button class="spk" data-say="' + esc(s) + '" aria-label="唸整句">💬</button></div>' : "") + "</div>";
+      }).join("") + "</div>";
+      if (isOr && ws.length < 2) h += '<p class="muted">再選 1 張，就會組成「A or B?」。</p>';
+      var tip = pat.stem ? "你說「" + pat.stem + "…」後停住，等孩子接（只接一個詞也算成功）。" : "把兩張卡舉到孩子面前，一次說一個詞，讓他用手指選。";
+      h += '<div class="note">' + tip + (pat.ask ? "　可以問：" + esc(pat.ask) : "") + "</div>";
+    }
+    h += '<div class="row"><button class="btn green small" data-rand="1">🎲 隨機抽 2 張</button>' + (ws.length ? '<button class="btn white small" data-clearpick="1">清除</button>' : "") + "</div></div></div>";
+    h += '<div class="row noprint" style="justify-content:space-between;align-items:center"><h2 style="margin:0">' + cat.icon + " " + esc(cat.name) + "（" + cat.words.length + " 個）</h2><button class=\"btn small white\" data-print=\"1\">🖨 列印這一類圖卡</button></div>";
+    h += '<div class="wgrid">' + cat.words.map(function (w) {
+      var s = isOr ? "" : sentence(pat.id, w), on = picked.indexOf(w[0]) >= 0;
+      return '<div class="wcard' + (on ? " on" : "") + '" data-pick="' + w[0] + '" role="button" tabindex="0" aria-pressed="' + on + '">' + pic(w) + '<div class="we">' + esc(w[1]) + '</div><div class="wz">' + esc(w[2]) + "</div>" +
+        '<div class="row noprint" style="justify-content:center;gap:6px"><button class="spk" data-say="' + esc(w[1]) + '" aria-label="唸單字">🔊</button>' + (s ? '<button class="spk" data-say="' + esc(s) + '" aria-label="唸整句">💬</button>' : "") + "</div>" +
+        (s ? '<div class="ws">' + esc(s) + "</div>" : "") + "</div>";
+    }).join("") + "</div>";
     return h;
   }
 
@@ -213,7 +268,7 @@
   }
 
   /* ---------- 路由與渲染 ---------- */
-  var NAV = [["home", "🏠", "首頁"], ["phrases", "📍", "短語"], ["units", "📚", "單元"], ["guide", "🧭", "指南"], ["record", "⭐", "紀錄"], ["settings", "⚙️", "設定"]];
+  var NAV = [["home", "🏠", "首頁"], ["phrases", "📍", "短語"], ["cards", "🃏", "圖卡"], ["units", "📚", "單元"], ["guide", "🧭", "指南"], ["record", "⭐", "紀錄"], ["settings", "⚙️", "設定"]];
   var unlocked = false;
   function route() { var h = (location.hash || "#home").slice(1); return h; }
   function render() {
@@ -224,6 +279,7 @@
     if (base === "phrases") out = viewPhrases();
     else if (base === "units") out = viewUnits();
     else if (base === "unit") out = viewUnit(parts[1]);
+    else if (base === "cards") out = viewCards();
     else if (base === "guide") out = viewGuide();
     else if (base === "record") out = viewRecord();
     else if (base === "settings") out = unlocked ? viewSettings() : '<div class="card"><h2>🔒 家長設定</h2><p>需要通過家長鎖才能進入。</p><button class="btn" data-unlock="1">解鎖</button></div>';
@@ -260,13 +316,26 @@
   }
 
   document.addEventListener("click", function (e) {
-    var t = e.target.closest("[data-go],[data-say],[data-cyc],[data-mode],[data-act],[data-played],[data-scene],[data-setunit],[data-kid],[data-resist],[data-logresist],[data-back],[data-badge],[data-addnote],[data-delnote],[data-unlock],[data-addkid],[data-delkid],[data-export],[data-reset],#gateOk,#gateX,#resistX");
+    var t = e.target.closest("[data-go],[data-say],[data-cyc],[data-mode],[data-act],[data-played],[data-scene],[data-setunit],[data-kid],[data-resist],[data-logresist],[data-back],[data-badge],[data-addnote],[data-delnote],[data-unlock],[data-addkid],[data-delkid],[data-export],[data-reset],[data-pat],[data-wcat],[data-pick],[data-rand],[data-clearpick],[data-print],#gateOk,#gateX,#resistX");
     if (!t) return;
     var d = t.dataset, c = kid();
     if (t.id === "gateOk") return submitGate();
     if (t.id === "gateX") return closeGate();
     if (t.id === "resistX") return $("#resist").classList.remove("open");
-    if (d.go) return go(d.go);
+    if (d.go) {
+      var gp = d.go.split("/");
+      if (gp[0] === "cards" && gp.length === 3) { cardPat = gp[1]; cardCat = gp[2]; picked = []; return go("cards"); }
+      return go(d.go);
+    }
+    if (d.pat) { cardPat = d.pat; picked = []; return render(); }
+    if (d.wcat) { cardCat = d.wcat; return render(); }
+    if (d.pick) { togglePick(d.pick); return render(); }
+    if (d.rand) {
+      var cw = (WCATS.filter(function (x) { return x.id === cardCat; })[0] || WCATS[0]).words.slice();
+      cw.sort(function () { return Math.random() - 0.5; }); picked = [cw[0][0], cw[1][0]]; return render();
+    }
+    if (d.clearpick) { picked = []; return render(); }
+    if (d.print) return window.print();
     if (d.say) return speak(d.say);
     if (d.cyc) { c.phr[d.cyc] = (pstat(c, d.cyc) + 1) % 3; save(); return render(); }
     if (d.mode) { S.mode = d.mode; save(); return render(); }
@@ -306,7 +375,14 @@
     };
     r.readAsText(f);
   });
-  document.addEventListener("keydown", function (e) { if (e.key === "Enter" && e.target.id === "gateIn") submitGate(); });
+  function togglePick(id) {
+    var i = picked.indexOf(id), max = cardPat === "or_choice" ? 2 : 4;
+    if (i >= 0) picked.splice(i, 1); else { picked.push(id); while (picked.length > max) picked.shift(); }
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && e.target.id === "gateIn") submitGate();
+    if ((e.key === "Enter" || e.key === " ") && e.target.dataset && e.target.dataset.pick) { e.preventDefault(); togglePick(e.target.dataset.pick); render(); }
+  });
 
   S = load(); save();
   render();
