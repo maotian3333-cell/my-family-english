@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>Sago Mini Style UI Character</title>
+  <!-- 引入 Tailwind CSS 用於快速渲染幾何與護眼色彩 -->
+  <script src="https://jsdelivr.net"></script>
+</head>
+<body class="bg-[#F7F5EE] flex items-center justify-center min-h-screen">
+
+  <!-- 角色主容器（帶有定時呼吸膨脹動效，增加幼兒互動感） -->
+  <div class="relative w-64 h-64 flex items-center justify-center animate-[bounce_3s_infinite_ease-in-out]">
+    
+    <!-- 1. 後方小耳朵（明度降低 15% 的暗色塊，做出 2D 疊加層次） -->
+    <div class="absolute top-10 left-12 w-14 h-14 bg-[#D15563] rounded-[40%_60%_30%_70%_/_60%_40%_60%_40%] -rotate-12"></div>
+    
+    <!-- 2. 前方大耳朵（主要草莓粉色，手感不對稱幾何） -->
+    <div class="absolute top-8 right-12 w-16 h-16 bg-[#F36B7F] rounded-[60%_40%_70%_30%_/_40%_60%_40%_60%] rotate-12 z-20"></div>
+
+    <!-- 3. 身體主結構（打破正圓，採用大福般軟糯的下垂圓度 ── 手感幾何） -->
+    <div class="absolute w-52 h-48 bg-[#F36B7F] rounded-[45%_55%_48%_52%_/_52%_55%_45%_48%] shadow-[-4px_6px_0px_0px_rgba(209,85,99,0.2)] z-10">
+      
+      <!-- 4. 五官容器：寬眼距、位置刻意下移至臉部下半部，激發嬰兒感 -->
+      <div class="absolute inset-x-0 bottom-10 flex flex-col items-center">
+        
+        <!-- 眼睛與腮紅水平排 -->
+        <div class="w-full flex justify-between px-10 items-center relative">
+          <!-- 左腮紅（馬卡龍粉橘）與左眼（極深暖灰，拒絕純黑） -->
+          <div class="relative flex items-center justify-center">
+            <div class="absolute w-8 h-5 bg-[#FF8A75] opacity-80 rounded-full blur-[1px]"></div>
+            <div class="w-3.5 h-3.5 bg-[#37474F] rounded-full z-10 translate-x-2"></div>
+          </div>
+          
+          <!-- 右眼與右腮紅 -->
+          <div class="relative flex items-center justify-center">
+            <div class="w-3.5 h-3.5 bg-[#37474F] rounded-full z-10 -translate-x-2"></div>
+            <div class="absolute w-8 h-5 bg-[#FF8A75] opacity-80 rounded-full blur-[1px]"></div>
+          </div>
+        </div>
+
+        <!-- 5. 豬鼻子（軟角膠囊幾何，與主體顏色做出明暗對比） -->
+        <div class="w-18 h-12 bg-[#FF8A8A] rounded-[40%_40%_45%_45%] mt-2 flex items-center justify-center gap-2 shadow-[0_3px_0_0_#D15563]">
+          <!-- 兩個小鼻孔 -->
+          <div class="w-2 h-3 bg-[#D15563] rounded-full opacity-70"></div>
+          <div class="w-2 h-3 bg-[#D15563] rounded-full opacity-70"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 6. 小腳腳（大圓角矩形，藏在身體下方） -->
+    <div class="absolute bottom-4 left-20 w-8 h-10 bg-[#D15563] rounded-b-2xl z-0"></div>
+    <div class="absolute bottom-4 right-20 w-8 h-10 bg-[#D15563] rounded-b-2xl z-0"></div>
+
+  </div>
+
+</body>
+</html>
