@@ -2,7 +2,7 @@
 // known：預設給「第一位孩子」的初始狀態（2=已會，1=學習中），可在網站內修改。
 window.MFE_SCENES = [
   { id: "meal", icon: "🍎", name: "餐桌", phrases: [
-    { id: "give_me", en: "Give me ___, please.", say: "Give me apple, please.", zh: "請給我___", when: "孩子要東西時（主打，見 A1 引導階梯）", main: true, known: 1 },
+    { id: "give_me", en: "Give me ___, please.", say: "Give me an apple, please.", zh: "請給我___", when: "孩子要東西時（主打，見 A1 引導階梯）", main: true, known: 1 },
     { id: "apple_or", en: "Apple or banana?", zh: "蘋果還是香蕉？", when: "讓孩子二選一，一次聽到兩個詞" },
     { id: "more_please", en: "More, please.", zh: "還要", when: "想再吃時" },
     { id: "all_done", en: "All done.", zh: "吃完了", when: "吃完、不吃時" },

@@ -7,18 +7,18 @@ window.MFE_LESSONS = [
   phrases: ["give_me", "apple_or", "here_you_are", "thank_you", "youre_welcome", "please"],
   words: ["apple 蘋果", "banana 香蕉", "（之後輪替）grapes 葡萄、orange 橘子、strawberry 草莓、watermelon 西瓜、pear 梨子"],
   ladder: [
-    ["0", "完整示範：Give me apple, please. 再把蘋果給孩子", "聽、接"],
+    ["0", "完整示範：Give me an apple, please. 再把蘋果給孩子", "聽、接"],
     ["1", "說前半句後停住：Give me…", "孩子接 apple 或 please（只接一個詞也算成功）"],
     ["2", "指著水果，用眼神等待", "孩子自己說出全部或一部分"],
-    ["3", "只問：What do you want?", "孩子說 Give me apple, please"],
+    ["3", "只問：What do you want?", "孩子說 Give me an apple, please"],
     ["4", "不提示", "孩子自己開口（主動使用）"]
   ],
   scripts: {
-    A: "想吃蘋果嗎？我們要跟媽媽說 please，Give me apple, please。（只示範，不逼說）",
-    B: "Apple or banana? 你想吃哪個？說 Give me apple, please。好，Here you are！",
-    C: "Apple or banana? Give me apple, please. Here you are. Thank you! You're welcome."
+    A: "想吃蘋果嗎？我們要跟媽媽說 please，Give me an apple, please。（只示範，不逼說）",
+    B: "Apple or banana? 你想吃哪個？說 Give me an apple, please。好，Here you are！",
+    C: "Apple or banana? Give me an apple, please. Here you are. Thank you! You're welcome."
   },
-  puppet: ["Give me banana, please!", "Thank you!", "Yummy!"],
+  puppet: ["Give me a banana, please!", "Thank you!", "Yummy!"],
   steps: [
     "水果切好，放在孩子看得見但拿不到的位置。",
     "拿出 2 種水果，說「Apple or banana?」",
@@ -30,7 +30,7 @@ window.MFE_LESSONS = [
   song: "這個單元以生活情境為主，不需要專屬歌曲。",
   book: "任何有 Thank you 的低字數書，請孩子自己選。",
   life: "每次吃水果、遞東西時各用一次，一整天自然帶 2 到 3 次就夠。",
-  twoKids: "大寶先說，二寶聽（模仿很有效）；二寶只要伸手或指，你代說：Give me apple, please. Here you are. 不要比較兩人進度。",
+  twoKids: "大寶先說，二寶聽（模仿很有效）；二寶只要伸手或指，你代說：Give me an apple, please. Here you are. 不要比較兩人進度。",
   resist: [
     "孩子不想你說英文：由玩偶代說，你改中文。",
     "孩子只想自己說：讓他當說話的人，你當接收者。",
@@ -39,7 +39,7 @@ window.MFE_LESSONS = [
   quick: "只做一次「Apple or banana?」加一次要求。",
   observe: "能接上一個詞＝能回應；沒提示自己說＝主動使用。",
   paper: "做水果點餐卡（蘋果、香蕉各一張），孩子指卡就能「點餐」，你補完整句。",
-  kid: { hero: "小熊的水果攤（果凍呼吸）", buttons: "手遞物圖示（Here you are）、愛心（Thank you）、微笑（You're welcome），無文字", game: "點水果圖聽到 Give me apple, please；孩子按「說」鈕才得到水果", palette: "方案 A，主按鈕用芒果暖黃", note: "無文字測試：遮住文字後，圖示能否讓孩子懂得「點水果給小熊」？" },
+  kid: { hero: "小熊的水果攤（果凍呼吸）", buttons: "手遞物圖示（Here you are）、愛心（Thank you）、微笑（You're welcome），無文字", game: "點水果圖聽到 Give me an apple, please；孩子按「說」鈕才得到水果", palette: "方案 A，主按鈕用芒果暖黃", note: "無文字測試：遮住文字後，圖示能否讓孩子懂得「點水果給小熊」？" },
   review: "隔天、3 天後、1 週後，各自然帶一次。"
 },
 {
