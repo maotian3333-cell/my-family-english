@@ -22,12 +22,42 @@
   }
 
   /* ---------- 動物怪獸頭像（不使用暱稱） ---------- */
-  var MONS = [
-    '<svg viewBox="0 0 100 100"><circle cx="24" cy="28" r="12" fill="#AED581" stroke="#3E4A59" stroke-width="4"/><circle cx="76" cy="28" r="12" fill="#AED581" stroke="#3E4A59" stroke-width="4"/><circle cx="50" cy="56" r="36" fill="#AED581" stroke="#3E4A59" stroke-width="4"/><circle cx="38" cy="50" r="6" fill="#fff" stroke="#3E4A59" stroke-width="3"/><circle cx="62" cy="50" r="6" fill="#fff" stroke="#3E4A59" stroke-width="3"/><circle cx="38" cy="51" r="2.5" fill="#3E4A59"/><circle cx="62" cy="51" r="2.5" fill="#3E4A59"/><path d="M38 68 Q50 78 62 68" fill="none" stroke="#3E4A59" stroke-width="4" stroke-linecap="round"/></svg>',
-    '<svg viewBox="0 0 100 100"><path d="M26 30 L34 8 L44 28Z M56 28 L66 8 L74 30Z" fill="#FFD54F" stroke="#3E4A59" stroke-width="4" stroke-linejoin="round"/><rect x="14" y="22" width="72" height="68" rx="34" fill="#64B5F6" stroke="#3E4A59" stroke-width="4"/><circle cx="38" cy="52" r="6" fill="#fff" stroke="#3E4A59" stroke-width="3"/><circle cx="62" cy="52" r="6" fill="#fff" stroke="#3E4A59" stroke-width="3"/><circle cx="38" cy="53" r="2.5" fill="#3E4A59"/><circle cx="62" cy="53" r="2.5" fill="#3E4A59"/><path d="M40 70 Q50 76 60 70" fill="none" stroke="#3E4A59" stroke-width="4" stroke-linecap="round"/></svg>',
-    '<svg viewBox="0 0 100 100"><path d="M18 90 Q10 40 50 14 Q90 40 82 90Z" fill="#FF8A65" stroke="#3E4A59" stroke-width="4" stroke-linejoin="round"/><circle cx="50" cy="50" r="15" fill="#fff" stroke="#3E4A59" stroke-width="4"/><circle cx="50" cy="52" r="6" fill="#3E4A59"/><path d="M36 76 Q50 86 64 76" fill="none" stroke="#3E4A59" stroke-width="4" stroke-linecap="round"/></svg>',
-    '<svg viewBox="0 0 100 100"><path d="M20 40 Q50 -4 80 40 L88 80 Q50 98 12 80Z" fill="#BA68C8" stroke="#3E4A59" stroke-width="4" stroke-linejoin="round"/><circle cx="38" cy="50" r="6" fill="#fff" stroke="#3E4A59" stroke-width="3"/><circle cx="62" cy="50" r="6" fill="#fff" stroke="#3E4A59" stroke-width="3"/><circle cx="38" cy="51" r="2.5" fill="#3E4A59"/><circle cx="62" cy="51" r="2.5" fill="#3E4A59"/><path d="M34 66 L66 66 L62 78 L56 70 L50 78 L44 70 L38 78Z" fill="#fff" stroke="#3E4A59" stroke-width="3" stroke-linejoin="round"/></svg>'
+  var TINT = ["#DDF1E4", "#DCEEFB", "#FFE6D6", "#EDE2F8"];
+  var MON_DEF = [
+    { base: "#8BC99E", shade: "#79B98E",
+      back: '<circle cx="46" cy="56" r="25"/><circle cx="134" cy="56" r="25"/>',
+      backIn: '<circle cx="46" cy="58" r="12" fill="#F9D9B7"/><circle cx="134" cy="58" r="12" fill="#F9D9B7"/>',
+      face: '<ellipse cx="90" cy="126" rx="31" ry="22" fill="#F9D9B7"/>', nose: '<ellipse cx="90" cy="113" rx="8" ry="5.5" fill="#344b4a"/>', mouth: '<path d="M90 118Q84 130 76 122M90 118Q96 130 104 122" fill="none" stroke="#344b4a" stroke-width="4.5" stroke-linecap="round"/>' },
+    { base: "#8CC8F2", shade: "#64AEE0",
+      back: '<path d="M28 84C18 44 34 20 56 33C70 42 76 58 74 78Z"/><path d="M152 84C162 44 146 20 124 33C110 42 104 58 106 78Z"/>',
+      backIn: '<path d="M40 74C35 52 44 42 54 49C60 55 62 63 61 72Z" fill="#F8BBD0"/><path d="M140 74C145 52 136 42 126 49C120 55 118 63 119 72Z" fill="#F8BBD0"/>',
+      face: '<path d="M80 58L82 71M90 55V71M100 58L98 71" stroke="#64AEE0" stroke-width="5" stroke-linecap="round" fill="none"/>', nose: '<path d="M84 112H96L90 119Z" fill="#F48FB1" stroke="#F48FB1" stroke-width="3" stroke-linejoin="round"/>', mouth: '<path d="M90 119Q84 130 76 123M90 119Q96 130 104 123" fill="none" stroke="#344b4a" stroke-width="4.5" stroke-linecap="round"/>' },
+    { base: "#FFA977", shade: "#F4864F",
+      back: '<path d="M58 54L67 12L86 46Z" fill="#FFE082"/><path d="M94 46L113 12L122 54Z" fill="#FFE082"/>',
+      backIn: '',
+      face: '<ellipse cx="78" cy="68" rx="5" ry="3.5" fill="#F4864F" opacity=".7"/><ellipse cx="90" cy="61" rx="5" ry="3.5" fill="#F4864F" opacity=".7"/><ellipse cx="102" cy="68" rx="5" ry="3.5" fill="#F4864F" opacity=".7"/>', nose: '',
+      mouth: '<path d="M75 120Q90 144 105 120Z" fill="#344b4a" stroke="#344b4a" stroke-width="3" stroke-linejoin="round"/><ellipse cx="90" cy="133" rx="8" ry="4.5" fill="#F48FB1"/>' },
+    { base: "#C9A7EB", shade: "#AB84D6",
+      back: '<path d="M54 74C34 30 42 2 60 2C77 2 84 34 82 74Z"/><path d="M126 74C146 30 138 2 120 2C103 2 96 34 98 74Z"/>',
+      backIn: '<path d="M61 62C52 36 54 14 60 14C67 14 71 38 71 62Z" fill="#F8BBD0"/><path d="M119 62C128 36 126 14 120 14C113 14 109 38 109 62Z" fill="#F8BBD0"/>',
+      face: '', nose: '<ellipse cx="90" cy="112" rx="6.5" ry="4.8" fill="#F48FB1"/>',
+      mouth: '<path d="M90 117V124M90 124Q83 131 76 125M90 124Q97 131 104 125" fill="none" stroke="#344b4a" stroke-width="4.5" stroke-linecap="round"/><rect x="84" y="127" width="12" height="10" rx="3" fill="#fff" stroke="#344b4a" stroke-width="2.5"/><path d="M90 127V137" stroke="#344b4a" stroke-width="2"/>' }
   ];
+  function monSvg(d) {
+    var W = 'stroke="#fff" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"';
+    return '<svg viewBox="-6 -4 192 214" aria-hidden="true">' +
+      '<ellipse cx="90" cy="200" rx="56" ry="7" fill="#37474F" opacity=".1"/>' +
+      '<g fill="' + (d.back.indexOf("fill=") >= 0 ? "none" : d.shade) + '" ' + W + ">" + d.back + "</g>" + d.backIn +
+      '<ellipse cx="40" cy="166" rx="13" ry="26" transform="rotate(25 40 166)" fill="' + d.shade + '" ' + W + "/>" +
+      '<ellipse cx="140" cy="166" rx="13" ry="26" transform="rotate(-25 140 166)" fill="' + d.shade + '" ' + W + "/>" +
+      '<ellipse cx="90" cy="172" rx="38" ry="26" fill="' + d.shade + '" ' + W + "/>" +
+      '<path d="M24 100C22 56 54 40 90 40C128 40 160 58 156 102C154 140 124 160 90 160C54 160 26 140 24 100Z" fill="' + d.base + '" stroke="#fff" stroke-width="8" stroke-linejoin="round"/>' +
+      d.face +
+      '<ellipse cx="64" cy="104" rx="7.5" ry="10.5" fill="#344b4a"/><ellipse cx="116" cy="104" rx="7.5" ry="10.5" fill="#344b4a"/><circle cx="66.5" cy="99.5" r="2.8" fill="#fff"/><circle cx="118.5" cy="99.5" r="2.8" fill="#fff"/>' +
+      '<ellipse cx="46" cy="124" rx="11" ry="7" fill="#F4A4A0" opacity=".85"/><ellipse cx="134" cy="124" rx="11" ry="7" fill="#F4A4A0" opacity=".85"/>' +
+      d.nose + d.mouth + "</svg>";
+  }
+  var MONS = MON_DEF.map(monSvg);
   function mon(i, cls) { return '<span class="mon ' + (cls || "") + '">' + MONS[i % MONS.length] + "</span>"; }
 
   /* ---------- 資料 ---------- */
@@ -48,6 +78,7 @@
 
   /* ---------- 發音（瀏覽器內建 TTS；字母聲音不適用） ---------- */
   function speak(text) {
+    if (S.mute) { toast("聲音已關閉（右上角喇叭可開啟）"); return; }
     if (!("speechSynthesis" in window)) { toast("此瀏覽器不支援朗讀"); return; }
     try {
       speechSynthesis.cancel();
@@ -92,6 +123,34 @@
   function playsOf(c, unit) { return c.plays.filter(function (p) { return p.unit === unit; }).length; }
   function lessonPhrases(l, c) { return l.phrases.map(function (id) { return PHRASE[id]; }).filter(Boolean).map(function (p) { return phraseRow(p, c); }).join(""); }
 
+  /* ---------- 歌曲與繪本 ---------- */
+  var MEDIA = window.MFE_MEDIA || {};
+  var KIND = { pd: ["公版歌曲", "g"], own: ["自編韻文", "y"], title: ["只列歌名", "b"] };
+  function songHtml(s) {
+    var k = KIND[s.kind] || KIND.title, saved = (S.lyr || {})[s.id] || "";
+    var h = '<div class="sub"><h3 style="margin-bottom:4px">🎵 ' + esc(s.t) + (s.zh ? "（" + esc(s.zh) + "）" : "") + ' <span class="tag ' + k[1] + '">' + k[0] + "</span></h3>";
+    if (s.act) h += "<p><b>動作／玩法：</b>" + esc(s.act) + "</p>";
+    if (s.lyrics) {
+      h += '<pre class="lyr">' + esc(s.lyrics) + '</pre><p><button class="btn small white" data-say="' + esc(s.lyrics.replace(/\n/g, " ")) + '">🔊 念給我聽（慢速朗讀，不是唱）</button></p>';
+    } else {
+      if (s.note) h += '<p class="muted">' + esc(s.note) + "</p>";
+      if (saved) h += '<pre class="lyr">' + esc(saved) + "</pre>";
+      h += "<details><summary>" + (saved ? "編輯我的歌詞" : "貼上我的歌詞") + '（只存在這個瀏覽器）</summary><textarea id="lyr-' + s.id + '" placeholder="把你找到的歌詞貼在這裡">' + esc(saved) + '</textarea><p><button class="btn small blue" data-savelyr="' + s.id + '">儲存</button></p></details>';
+    }
+    h += '<p><a class="btn small white" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=' + encodeURIComponent(s.q || s.t + " nursery rhyme") + '">▶ 到 YouTube 搜尋（建議只聽聲音）</a></p></div>';
+    return h;
+  }
+  function songsHtml(id) {
+    var m = MEDIA[id];
+    return m && m.songs ? m.songs.map(songHtml).join("") : "<p class=\"muted\">這個單元還沒有歌曲。</p>";
+  }
+  function booksHtml(id) {
+    var m = MEDIA[id];
+    if (!m || !m.books) return "<p class=\"muted\">這個單元還沒有繪本建議。</p>";
+    return m.books.map(function (b) { return '<div class="sub"><b>' + esc(b.t) + '</b> <span class="muted">' + esc(b.au) + "</span><br>" + esc(b.why) + "</div>"; }).join("") +
+      '<p class="muted">念法：先用中文講故事，只在重複出現的詞夾英文；孩子要自己選書；抗拒就用中文念完。書名請以圖書館或書店搜尋為準，各版本字數可能不同。</p>';
+  }
+
   /* ---------- 首頁 ---------- */
   var openAct = null;
   function activityBody(l, key, c) {
@@ -99,31 +158,55 @@
     if (key === "quick") {
       h = "<h3>⚡ 5 分鐘版</h3><p>" + esc(l.quick) + "</p><p><b>玩偶說：</b>" + esc(l.puppet[0]) + ' <button class="spk" data-say="' + esc(l.puppet[0]) + '" aria-label="播放">🔊</button></p>';
     } else if (key === "sing") {
-      h = "<h3>🎵 唱唱跳跳</h3><p>" + esc(l.song) + "</p><p class=\"muted\">歌曲庫與歌詞在 v1.1 加入。現在可先用他已會的歌（例如小星星）配動作。</p>";
+      h = "<h3>🎵 唱唱跳跳</h3>" + songsHtml(l.id);
     } else if (key === "play") {
       h = "<h3>🧸 玩一玩</h3><p>" + esc(l.game) + "</p><p><b>玩偶台詞：</b>" + l.puppet.map(esc).join("、") + "</p>" + scriptBox(l);
     } else if (key === "read") {
-      h = "<h3>📖 讀一讀</h3><p>" + esc(l.book) + "</p><p class=\"muted\">原則：先中文故事，英文只夾 1 到 2 個詞；孩子抗拒就用中文念完。</p>";
+      h = "<h3>📖 讀一讀</h3>" + booksHtml(l.id);
     } else {
       h = "<h3>🍳 生活中用</h3><p>" + esc(l.life) + "</p>" + lessonPhrases(l, c);
     }
     return '<div class="card warm">' + h + '<div class="row"><button class="btn green" data-played="' + key + '">✅ 一起玩過</button></div></div>';
   }
+  var STK_COL = ["#FFD54F", "#AED581", "#81D4FA", "#F8BBD0", "#FFAB91", "#CE93D8", "#80CBC4", "#FFE082", "#B39DDB"];
+  function stickerCount(c) { return LESSONS.filter(function (l) { return playsOf(c, l.id) >= 3; }).length; }
+  function stars(n) { return [1, 3, 6].map(function (t) { return '<span class="' + (n >= t ? "on" : "") + '">★</span>'; }).join(""); }
   function viewHome() {
-    var c = kid(), l = LESSON[c.unit] || LESSONS[0], n = playsOf(c, l.id);
+    var c = kid(), l = LESSON[c.unit] || LESSONS[0], total = c.plays.length, sc = stickerCount(c);
     var main = PHRASE[l.phrases[0]];
-    var h = '<div class="card soft" style="display:flex;gap:14px;align-items:center">' + mon(c.mon, "jelly") +
-      '<div style="flex:1"><div class="muted">目前單元</div><h2 style="margin:0">' + esc(l.id) + " " + esc(l.icon) + " " + esc(l.title) + '</h2>' + caterpillar(Math.min(n, 8), 8) + "</div></div>";
-    h += '<div class="card"><h3>這個單元的主打句</h3>' + phraseRow(main, c) +
+    var h = '<section class="hero"><div class="hero-copy"><div class="eyebrow">A LITTLE ENGLISH EVERY DAY</div>' +
+      '<h2 class="sticker-title">一起玩，<br>一起說英文！</h2><p class="hero-p">不用排日期，想玩哪一個就玩哪一個。做 1 項就很棒。</p>' +
+      '<div class="stats"><div class="stat"><b>' + total + '</b>一起玩過</div><div class="stat"><b>' + sc + " / " + LESSONS.length + '</b>貼紙</div><div class="stat"><b>' + esc(l.id) + '</b>目前單元</div></div></div>' +
+      '<div class="hero-stage"><div class="mascot">' + MONS[c.mon] + '</div><div class="play-wrap"><button class="play-btn" data-play="1" aria-label="開始今天的英文">▶</button><div class="play-label">LET\'S PLAY!</div></div></div>' +
+      '<span class="deco a">✿</span><span class="deco b">☁️</span></section>';
+    h += '<div class="card"><h2>🗺️ 學習地圖</h2><p class="muted">點島嶼看教材。玩 1、3、6 次各得一顆星；玩滿 3 次拿到貼紙。沒有鎖，想去哪都可以。</p><div class="map">' +
+      LESSONS.map(function (x) {
+        var n = playsOf(c, x.id);
+        return '<button class="isl' + (x.id === c.unit ? " cur" : "") + (n >= 3 ? " done" : "") + '" data-go="unit/' + x.id + '"><span class="ib">' + x.icon + "</span><b>" + x.id + '</b><span class="stars">' + stars(n) + "</span></button>";
+      }).join("") + "</div></div>";
+    h += '<div class="card"><div class="muted">目前單元 ' + esc(l.id) + " " + esc(l.icon) + " " + esc(l.title) + "</div><h3>這個單元的主打句</h3>" + phraseRow(main, c) +
       '<div class="row"><button class="btn white small" data-go="unit/' + l.id + '">看完整教材卡</button><button class="btn white small" data-go="units">換單元</button></div></div>';
-    h += '<div class="card"><h3>今天想做什麼？</h3><p class="muted">不用全部做，做 1 項就很好。沒有「今天沒完成」。</p><div class="menu">' +
+    h += '<div class="card" id="menuCard"><h2>今天想做什麼？</h2><p class="muted">沒有「今天沒完成」這種事。</p><div class="menu">' +
       [["quick", "⚡", "5 分鐘版", "最輕鬆"], ["sing", "🎵", "唱唱跳跳", "約 5 分鐘"], ["play", "🧸", "玩一玩", "5 到 8 分鐘"], ["read", "📖", "讀一讀", "5 到 8 分鐘"], ["life", "🍳", "生活中用", "隨時"]].map(function (a) {
         return '<button class="btn" data-act="' + a[0] + '"><span class="em">' + a[1] + "</span>" + a[2] + "<small>" + a[3] + "</small></button>";
       }).join("") + "</div></div>";
     h += '<div id="actArea">' + (openAct ? activityBody(l, openAct, c) : "") + "</div>";
-    h += '<div class="card"><button class="btn orange" data-resist="1">🙅 孩子今天不想</button> <button class="btn blue" data-go="phrases">📍 我現在在哪裡？（生活短語）</button></div>';
+    h += '<div class="card"><div class="row"><button class="btn orange" data-resist="1">🙅 孩子今天不想</button><button class="btn blue" data-go="phrases">📍 我現在在哪裡？</button><button class="btn green" data-go="cards">🃏 拿圖卡來玩</button></div></div>';
+    h += '<div class="card"><h2>🏅 貼紙冊（' + sc + " / " + LESSONS.length + "）</h2><div class=\"stickers\">" + LESSONS.map(function (x, i) {
+      var n = playsOf(c, x.id), on = n >= 3;
+      return '<div class="stk' + (on ? "" : " off") + '"><div class="sb" style="background:' + STK_COL[i % STK_COL.length] + ";--rot:" + (i % 2 ? 5 : -5) + 'deg">' + x.icon + "</div>" + esc(x.id) + " " + esc(x.title) + (on ? "" : '<br><span class="muted">再玩 ' + (3 - n) + " 次</span>") + "</div>";
+    }).join("") + "</div></div>";
     h += '<details><summary>不背單字的 5 個原則</summary>' + GUIDE.principles.map(function (p, i) { return "<p><b>" + (i + 1) + ". " + esc(p[0]) + "</b><br>" + esc(p[1]) + "</p>"; }).join("") + "</details>";
     return h;
+  }
+  function burst() {
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var e = ["⭐", "✨", "🎉", "💛", "🌟"];
+    for (var i = 0; i < 14; i++) {
+      var d = document.createElement("span"); d.className = "pop"; d.textContent = e[i % e.length];
+      d.style.setProperty("--dx", Math.round((Math.random() - .5) * 320) + "px"); d.style.setProperty("--dy", Math.round(-60 - Math.random() * 200) + "px"); d.style.setProperty("--rot", Math.round((Math.random() - .5) * 120) + "deg");
+      document.body.appendChild(d); (function (x) { setTimeout(function () { x.remove(); }, 1100); })(d);
+    }
   }
 
   /* ---------- 生活短語庫 ---------- */
@@ -167,7 +250,8 @@
     }
     h += "</div><div>";
     h += '<div class="card"><h2>教學步驟</h2>' + list(l.steps, true) + "<p><b>⚡ 5 分鐘版：</b>" + esc(l.quick) + "</p></div>";
-    h += '<div class="card"><h2>遊戲、歌曲、繪本</h2><p><b>遊戲：</b>' + esc(l.game) + "</p><p><b>歌曲：</b>" + esc(l.song) + "</p><p><b>繪本：</b>" + esc(l.book) + "</p><p><b>生活中用：</b>" + esc(l.life) + "</p></div>";
+    h += '<div class="card"><h2>遊戲與生活中用</h2><p><b>遊戲：</b>' + esc(l.game) + "</p><p><b>生活中用：</b>" + esc(l.life) + "</p></div>";
+    h += '<div class="card"><h2>🎵 歌曲與韻文</h2>' + songsHtml(l.id) + '</div><div class="card"><h2>📖 繪本</h2>' + booksHtml(l.id) + "</div>";
     h += '<div class="card"><h2>兩個孩子一起用</h2><p>' + esc(l.twoKids) + "</p></div>";
     h += '<div class="card"><h2>孩子抗拒時</h2>' + list(l.resist) + '<div class="note">抗拒常常不是英文本身，而是「這本書／這個情境和他預期的不一樣」。先換回他熟悉的方式，只換一小部分。</div></div>';
     h += "</div></div>";
@@ -259,7 +343,7 @@
     }).join("") + "</div>";
     if (S.children.length < 4) {
       var used = S.children.map(function (c) { return c.mon; });
-      h += "<h3>新增孩子：選一個怪獸</h3><div class=\"row\">" + MONS.map(function (m, i) { return used.indexOf(i) >= 0 ? "" : '<button class="kidbtn" data-addkid="' + i + '" aria-label="新增">' + m + "</button>"; }).join("") + "</div>";
+      h += "<h3>新增孩子：選一個怪獸</h3><div class=\"row\">" + MONS.map(function (m, i) { return used.indexOf(i) >= 0 ? "" : '<button class="kidbtn" style="background:' + TINT[i] + '" data-addkid="' + i + '" aria-label="新增">' + m + "</button>"; }).join("") + "</div>";
     }
     h += "</div>";
     h += '<div class="card"><h2>備份</h2><p class="muted">資料只存在這個瀏覽器；換裝置或清除瀏覽器資料會消失。建議偶爾匯出備份。</p><div class="row"><button class="btn blue" data-export="1">⬇ 匯出備份</button><label class="btn white">⬆ 匯入備份<input type="file" id="imp" accept="application/json" style="display:none"></label></div></div>';
@@ -268,12 +352,13 @@
   }
 
   /* ---------- 路由與渲染 ---------- */
-  var NAV = [["home", "🏠", "首頁"], ["phrases", "📍", "短語"], ["cards", "🃏", "圖卡"], ["units", "📚", "單元"], ["guide", "🧭", "指南"], ["record", "⭐", "紀錄"], ["settings", "⚙️", "設定"]];
+  var NAV = [["home", "🏠", "首頁"], ["phrases", "📍", "短語"], ["cards", "🃏", "圖卡"], ["units", "📚", "單元"], ["guide", "🧭", "指南"], ["record", "⭐", "紀錄"]];
   var unlocked = false;
   function route() { var h = (location.hash || "#home").slice(1); return h; }
   function render() {
     var r = route(), parts = r.split("/"), base = parts[0], c = kid();
-    $("#kids").innerHTML = S.children.map(function (k) { return '<button class="kidbtn' + (k.id === S.active ? " on" : "") + '" data-kid="' + k.id + '" aria-label="切換孩子">' + MONS[k.mon] + "</button>"; }).join("");
+    $("#kids").innerHTML = S.children.map(function (k) { return '<button class="kidbtn' + (k.id === S.active ? " on" : "") + '" style="background:' + TINT[k.mon] + '" data-kid="' + k.id + '" aria-label="切換孩子">' + MONS[k.mon] + "</button>"; }).join("");
+    $("#tools").innerHTML = '<button class="tool-btn" data-sound="1" aria-label="聲音開關">' + (S.mute ? "🔇" : "🔊") + '</button><button class="tool-btn" data-gear="1" aria-label="家長設定">⚙️</button>';
     $("#nav").innerHTML = NAV.map(function (n) { return '<button data-go="' + n[0] + '" class="' + (base === n[0] || (base === "unit" && n[0] === "units") ? "on" : "") + '"><span class="i">' + n[1] + "</span>" + n[2] + "</button>"; }).join("");
     var out = "";
     if (base === "phrases") out = viewPhrases();
@@ -294,7 +379,7 @@
     var c = kid(), l = LESSON[c.unit];
     var unitId = key === "unit" ? (route().split("/")[1] || c.unit) : c.unit;
     c.plays.push({ unit: unitId, act: key, ts: Date.now() }); c.resist = [];
-    save(); toast("⭐ 一起玩過！做得好");
+    save(); toast("⭐ 一起玩過！做得好"); burst();
     if (key !== "unit") { openAct = null; }
     render();
   }
@@ -316,7 +401,7 @@
   }
 
   document.addEventListener("click", function (e) {
-    var t = e.target.closest("[data-go],[data-say],[data-cyc],[data-mode],[data-act],[data-played],[data-scene],[data-setunit],[data-kid],[data-resist],[data-logresist],[data-back],[data-badge],[data-addnote],[data-delnote],[data-unlock],[data-addkid],[data-delkid],[data-export],[data-reset],[data-pat],[data-wcat],[data-pick],[data-rand],[data-clearpick],[data-print],#gateOk,#gateX,#resistX");
+    var t = e.target.closest("[data-go],[data-say],[data-cyc],[data-mode],[data-act],[data-played],[data-scene],[data-setunit],[data-kid],[data-resist],[data-logresist],[data-back],[data-badge],[data-addnote],[data-delnote],[data-unlock],[data-addkid],[data-delkid],[data-export],[data-reset],[data-pat],[data-wcat],[data-pick],[data-rand],[data-clearpick],[data-print],[data-savelyr],[data-play],[data-sound],[data-gear],#gateOk,#gateX,#resistX");
     if (!t) return;
     var d = t.dataset, c = kid();
     if (t.id === "gateOk") return submitGate();
@@ -336,6 +421,10 @@
     }
     if (d.clearpick) { picked = []; return render(); }
     if (d.print) return window.print();
+    if (d.play) { var mc = document.getElementById("menuCard"); if (mc) { mc.scrollIntoView({ behavior: "smooth", block: "start" }); mc.classList.add("pulse"); setTimeout(function () { mc.classList.remove("pulse"); }, 1300); } return; }
+    if (d.sound) { S.mute = !S.mute; save(); toast(S.mute ? "聲音已關閉" : "聲音已開啟"); return render(); }
+    if (d.gear) return gate(function () { unlocked = true; go("settings"); });
+    if (d.savelyr) { var ta = document.getElementById("lyr-" + d.savelyr); if (!S.lyr) S.lyr = {}; S.lyr[d.savelyr] = ta ? ta.value.trim() : ""; save(); toast("已儲存歌詞"); return render(); }
     if (d.say) return speak(d.say);
     if (d.cyc) { c.phr[d.cyc] = (pstat(c, d.cyc) + 1) % 3; save(); return render(); }
     if (d.mode) { S.mode = d.mode; save(); return render(); }
