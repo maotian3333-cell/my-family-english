@@ -7,6 +7,7 @@
   var WORD = {};
   WCATS.forEach(function (c) { c.words.forEach(function (w) { WORD[w[0]] = w; }); });
   var STATUS = ["新", "學習中", "已會"];
+  var LEVELS = ["新", "聽過", "有反應", "能指認", "主動使用"];
   var PHRASE = {};
   SCENES.forEach(function (s) { s.phrases.forEach(function (p) { p.scene = s.id; PHRASE[p.id] = p; }); });
   var LESSON = {};
@@ -75,6 +76,21 @@
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast("無法儲存（瀏覽器可能封鎖了儲存空間）"); } }
   function kid() { for (var i = 0; i < S.children.length; i++) if (S.children[i].id === S.active) return S.children[i]; S.active = S.children[0].id; return S.children[0]; }
   function pstat(c, id) { return c.phr[id] || 0; }
+  function band(l) { return l === 0 ? 0 : (l <= 2 ? 1 : 2); }
+  function lvOf(c, id) { if (c.lv && c.lv[id] != null) return c.lv[id]; var p = pstat(c, id); return p === 0 ? 0 : (p === 1 ? 2 : 4); }
+  function setLevel(c, id, l) { c.lv = c.lv || {}; c.pts = c.pts || {}; c.lv[id] = l; c.phr[id] = band(l); c.pts[id] = c.plays.length; }
+  var REVIEW_AFTER = 8;
+  function reviewList(c) {
+    var out = [];
+    SCENES.forEach(function (sc) { sc.phrases.forEach(function (p) { if (pstat(c, p.id) === 1 && c.plays.length - ((c.pts || {})[p.id] || 0) >= REVIEW_AFTER) out.push(p); }); });
+    return out;
+  }
+  function summaryText(c) {
+    var done = [], learning = [];
+    SCENES.forEach(function (sc) { sc.phrases.forEach(function (p) { var st = pstat(c, p.id); if (st === 2) done.push(p.en); else if (st === 1) learning.push(p.en); }); });
+    var played = LESSONS.filter(function (l) { return playsOf(c, l.id) > 0; }).map(function (l) { return l.id + "×" + playsOf(c, l.id); });
+    return "My Family English 進度摘要\n一起玩過：" + c.plays.length + " 次\n玩過的單元：" + (played.join("、") || "（還沒有）") + "\n已會的短語（" + done.length + "）：" + (done.join("；") || "—") + "\n學習中（" + learning.length + "）：" + (learning.join("；") || "—") + "\n里程碑：" + (c.badges.join("；") || "—") + "\n最近的亮點：\n" + (c.notes.slice(-5).map(function (n) { return "・" + n.text; }).join("\n") || "—");
+  }
 
   /* ---------- 發音（瀏覽器內建 TTS；字母聲音不適用） ---------- */
   function speak(text) {
@@ -105,7 +121,7 @@
     var s = pstat(c, p.id);
     return '<div class="phrase' + (p.main ? " main" : "") + '"><button class="spk" data-say="' + esc(p.say || p.en) + '" aria-label="播放發音">🔊</button>' +
       '<div class="t"><div class="en">' + esc(p.en) + '</div><div>' + esc(p.zh) + '</div><div class="muted">' + esc(p.when) + (p.main ? "　⭐ 本場景主打" : "") + "</div></div>" +
-      '<button class="st s' + s + '" data-cyc="' + p.id + '" aria-label="切換狀態">' + STATUS[s] + (s === 2 ? "（複習用）" : "") + "</button></div>";
+      '<button class="st s' + s + '" data-cyc="' + p.id + '" aria-label="切換狀態">' + (S.detail ? LEVELS[lvOf(c, p.id)] : STATUS[s] + (s === 2 ? "（複習用）" : "")) + "</button></div>";
   }
   function scriptBox(l) {
     var m = S.mode || "A";
@@ -147,8 +163,8 @@
   function booksHtml(id) {
     var m = MEDIA[id];
     if (!m || !m.books) return "<p class=\"muted\">這個單元還沒有繪本建議。</p>";
-    return m.books.map(function (b) { return '<div class="sub"><b>' + esc(b.t) + '</b> <span class="muted">' + esc(b.au) + "</span><br>" + esc(b.why) + "</div>"; }).join("") +
-      '<p class="muted">念法：先用中文講故事，只在重複出現的詞夾英文；孩子要自己選書；抗拒就用中文念完。書名請以圖書館或書店搜尋為準，各版本字數可能不同。</p>';
+    return m.books.map(function (b) { return '<div class="sub"><b>' + esc(b.t) + '</b> <span class="muted">' + esc(b.au) + "</span><br>" + esc(b.why) + '<br><button class="btn small white" data-copy="' + esc(b.t) + '">📋 複製書名，去北市圖查</button></div>'; }).join("") +
+      '<p class="muted">念法：先用中文講故事，只在重複出現的詞夾英文；孩子要自己選書；抗拒就用中文念完。書名、作者是依記憶整理，尚未逐一核對臺北市立圖書館館藏；請複製書名到北市圖館藏查詢，查不到可找中文版或同作者的其他書。各版本字數可能不同。</p>';
   }
 
   /* ---------- 首頁 ---------- */
@@ -220,16 +236,18 @@
   }
 
   /* ---------- 單元列表與教材卡 ---------- */
+  function unitCard(l, c) {
+    var cur = l.id === c.unit;
+    return '<div class="card" style="margin:0;' + (cur ? "background:#FFF3C4" : "") + '"><div style="font-size:2rem">' + l.icon + "</div><h3>" + l.id + " " + esc(l.title) + "</h3>" +
+      (cur ? '<span class="tag y">目前單元</span> ' : "") + '<span class="tag b">玩過 ' + playsOf(c, l.id) + " 次</span>" +
+      '<div class="row" style="margin-top:10px"><button class="btn small white" data-go="unit/' + l.id + '">打開</button>' + (cur ? "" : '<button class="btn small blue" data-setunit="' + l.id + '">設為目前</button>') + "</div></div>";
+  }
   function viewUnits() {
     var c = kid();
-    var h = '<h1>📚 階段 A：生活情境句與歌曲</h1><p class="muted">不依日期，孩子準備好再往下；孩子抗拒時，退回或重複都沒關係。</p><div class="grid">';
-    LESSONS.forEach(function (l) {
-      var cur = l.id === c.unit;
-      h += '<div class="card" style="margin:0;' + (cur ? "background:#FFF3C4" : "") + '"><div style="font-size:2rem">' + l.icon + "</div><h3>" + l.id + " " + esc(l.title) + "</h3>" +
-        (cur ? '<span class="tag y">目前單元</span> ' : "") + '<span class="tag b">玩過 ' + playsOf(c, l.id) + " 次</span>" +
-        '<div class="row" style="margin-top:10px"><button class="btn small white" data-go="unit/' + l.id + '">打開</button>' + (cur ? "" : '<button class="btn small blue" data-setunit="' + l.id + '">設為目前</button>') + "</div></div>";
-    });
-    h += '</div><div class="card" style="margin-top:16px"><h3>階段 A 檢查點（參考，不用全部達成）</h3>' + list(GUIDE.checkpoints) + '<p class="muted">達到約一半以上，就可以考慮進入階段 B（B 單元會在 v1.1 加入）。</p></div>';
+    var h = '<h1>📚 單元</h1><p class="muted">不依日期，孩子準備好再往下；孩子抗拒時，退回或重複都沒關係。</p>';
+    h += '<h2>階段 A：生活情境句與歌曲</h2><div class="grid">' + LESSONS.filter(function (l) { return l.stage === "A"; }).map(function (l) { return unitCard(l, c); }).join("") + "</div>";
+    h += '<div class="card" style="margin-top:16px"><h3>階段 A 檢查點（參考，不用全部達成）</h3>' + list(GUIDE.checkpoints) + '<p class="muted">達到約一半以上，就可以考慮進入階段 B；階段 B 也可以和階段 A 混著玩。</p></div>';
+    h += '<h2 style="margin-top:20px">階段 B：單字放進句子框</h2><p class="muted">只換一個眼前的詞，孩子聽得懂、會指就是成功，不要求開口。</p><div class="grid">' + LESSONS.filter(function (l) { return l.stage === "B"; }).map(function (l) { return unitCard(l, c); }).join("") + "</div>";
     return h;
   }
   function viewUnit(id) {
@@ -255,7 +273,8 @@
     h += '<div class="card"><h2>兩個孩子一起用</h2><p>' + esc(l.twoKids) + "</p></div>";
     h += '<div class="card"><h2>孩子抗拒時</h2>' + list(l.resist) + '<div class="note">抗拒常常不是英文本身，而是「這本書／這個情境和他預期的不一樣」。先換回他熟悉的方式，只換一小部分。</div></div>';
     h += "</div></div>";
-    h += "<details><summary>觀察、紙本轉化、複習</summary><p><b>觀察重點：</b>" + esc(l.observe) + "</p><p><b>紙本轉化：</b>" + esc(l.paper) + "</p><p><b>複習：</b>" + esc(l.review) + "</p></details>";
+    h += sheetLinks(l.id);
+    h += "<details open><summary>觀察、紙本轉化、複習</summary><p><b>觀察重點：</b>" + esc(l.observe) + "</p><p><b>紙本轉化：</b>" + esc(l.paper) + "</p><p><b>複習：</b>" + esc(l.review) + "</p></details>";
     var k = l.kid;
     h += "<details><summary>孩子模式預留（目前只是參考）</summary><ul><li><b>主角：</b>" + esc(k.hero) + "</li><li><b>按鈕：</b>" + esc(k.buttons) + "</li><li><b>遊戲：</b>" + esc(k.game) + "</li><li><b>色系：</b>" + esc(k.palette) + "</li><li>" + esc(k.note) + "</li></ul></details>";
     h += '<div class="row">' + (i > 0 ? '<button class="btn white" data-go="unit/' + LESSONS[i - 1].id + '">← ' + LESSONS[i - 1].id + "</button>" : "") + (i < LESSONS.length - 1 ? '<button class="btn white" data-go="unit/' + LESSONS[i + 1].id + '">' + LESSONS[i + 1].id + " →</button>" : "") + "</div>";
@@ -267,10 +286,18 @@
   function pic(w) {
     var p = w[3];
     if (p.indexOf("svg:") === 0) return '<span class="pic svg">' + ((window.MFE_SVG || {})[p.slice(4)] || "") + "</span>";
+    if (p.indexOf("txt:") === 0) return '<span class="pic txt">' + esc(p.slice(4)) + "</span>";
     return '<span class="pic">' + p + "</span>";
   }
   function art(w) { if (w[4] === "u" || w[4] === "p") return w[1]; return (/^[aeiou]/i.test(w[1]) ? "an " : "a ") + w[1]; }
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function plural(w) {
+    var n = w[1], t = w[4];
+    if (t === "u" || t === "p") return n;
+    if (/[^aeiou]y$/.test(n)) return n.replace(/y$/, "ies");
+    if (/(s|x|ch|sh|o)$/.test(n)) return n + "es";
+    return n + "s";
+  }
   function sentence(pat, w, w2) {
     var t = w[4], n = w[1];
     if (pat === "give_me") return "Give me " + art(w) + ", please.";
@@ -279,6 +306,12 @@
     if (pat === "this_is") return t === "p" ? "These are " + n + "." : "This is " + art(w) + ".";
     if (pat === "i_want") return "I want " + art(w) + ".";
     if (pat === "or_choice") return w2 ? cap(n) + " or " + w2[1] + "?" : "";
+    if (pat === "sound") return w[6] ? "/" + (w[6] === "c" ? "k" : w[6]) + "/, /" + (w[6] === "c" ? "k" : w[6]) + "/, " + n + "." : n;
+    if (pat === "its") return "It's " + n + ".";
+    if (pat === "i_see") return "I see " + art(w) + ".";
+    if (pat === "touch_your") return "Touch your " + n + ".";
+    if (pat === "i_like") return "I like " + plural(w) + ".";
+    if (pat === "here_comes") return "Here comes the " + n + ".";
     return n;
   }
   function viewCards() {
@@ -307,10 +340,31 @@
     h += '<div class="wgrid">' + cat.words.map(function (w) {
       var s = isOr ? "" : sentence(pat.id, w), on = picked.indexOf(w[0]) >= 0;
       return '<div class="wcard' + (on ? " on" : "") + '" data-pick="' + w[0] + '" role="button" tabindex="0" aria-pressed="' + on + '">' + pic(w) + '<div class="we">' + esc(w[1]) + '</div><div class="wz">' + esc(w[2]) + "</div>" +
-        '<div class="row noprint" style="justify-content:center;gap:6px"><button class="spk" data-say="' + esc(w[1]) + '" aria-label="唸單字">🔊</button>' + (s ? '<button class="spk" data-say="' + esc(s) + '" aria-label="唸整句">💬</button>' : "") + "</div>" +
+        '<div class="row noprint" style="justify-content:center;gap:6px"><button class="spk" data-say="' + esc(w[1]) + '" aria-label="唸單字">🔊</button>' + (w[6] ? '<button class="spk" data-x="lsound" data-l="' + w[6] + '" aria-label="聽字母聲音">🔤</button>' : "") + (s ? '<button class="spk" data-say="' + esc(s) + '" aria-label="唸整句">💬</button>' : "") + "</div>" +
         (s ? '<div class="ws">' + esc(s) + "</div>" : "") + "</div>";
     }).join("") + "</div>";
     return h;
+  }
+
+  /* ---------- 紙本學習單 ---------- */
+  function sheetLinks(id) {
+    var W = window.MFE_SHEETS; if (!W || !W.SPEC[id]) return "";
+    var d = {
+      2: "貼貼紙、塗色。練手指力量，聽到就有反應。",
+      3: "連連看、圈圈看、描虛線。用手指指出就算完成。",
+      4: "配對說對的話、排順序、剪卡片、貼紙表。"
+    };
+    return '<div class="card"><h2>📄 紙本學習單（PDF）</h2><p class="muted">依年齡分三份，列印後直接玩。孩子還小也可以先挑 2–3 歲那份，只貼貼紙就很好。</p><div class="dl-list">' +
+      [2, 3, 4].map(function (a) {
+        return '<div class="sub"><b>' + W.AGES[a] + "</b><br><span class=\"muted\">" + d[a] + '</span><p class="row" style="margin:8px 0 0"><a class="btn small blue" href="worksheets/' + id + "-" + a + '.pdf" download>⬇ 下載 PDF</a><button class="btn small white" data-go="sheet/' + id + "/" + a + '">網頁預覽／列印</button></p></div>';
+      }).join("") + "</div></div>";
+  }
+  function viewSheet(id, age) {
+    var W = window.MFE_SHEETS; age = +age || 2;
+    var h = '<div class="sheet-bar"><button class="btn small white" data-go="unit/' + esc(id) + '">← 回教材卡</button>' +
+      [2, 3, 4].map(function (a) { return '<button class="btn small ' + (a === age ? "" : "white") + '" data-go="sheet/' + esc(id) + "/" + a + '">' + W.AGES[a] + "</button>"; }).join("") +
+      '<button class="btn small green" data-print="1">🖨 列印／存成 PDF</button></div>';
+    return h + W.render(id, age);
   }
 
   /* ---------- 指南 ---------- */
@@ -329,6 +383,9 @@
     var h = '<div class="card soft" style="display:flex;gap:14px;align-items:center">' + mon(c.mon) + '<div><h1 style="margin:0">⭐ 一起玩過 ' + total + " 次</h1><p class=\"muted\" style=\"margin:0\">輕量紀錄，重點是鼓勵。</p></div></div>";
     h += '<div class="card"><h2>各單元</h2>' + LESSONS.map(function (l) { return "<p><b>" + l.id + " " + esc(l.title) + "</b>" + caterpillar(Math.min(playsOf(c, l.id), 8), 8) + "</p>"; }).join("") + "</div>";
     h += '<div class="card"><h2>短語狀態</h2><p><span class="st s2">已會 ' + cnt[2] + '</span> <span class="st s1">學習中 ' + cnt[1] + '</span> <span class="st s0">新 ' + cnt[0] + '</span></p><p class="muted">狀態由你手動判斷：要在不同日子、不同情境都觀察到，才標「已會」。到「生活短語」頁點標籤即可切換。</p></div>';
+    var rv = reviewList(c);
+    if (rv.length) h += '<div class="card warm"><h2>💭 可以再帶一次</h2><p class="muted">這些短語標成「學習中」後，已經一起玩了好幾次別的內容。想到的時候自然帶一句就好，不是功課。</p>' + rv.slice(0, 6).map(function (p) { return phraseRow(p, c); }).join("") + "</div>";
+    h += '<div class="card"><h2>📋 進度摘要</h2><p class="muted">複製成文字，可以貼到筆記或傳給家人。不含孩子的姓名與日期。</p><button class="btn blue small" data-summary="1">複製摘要</button></div>';
     h += '<div class="card"><h2>🏅 里程碑（手動點選）</h2><div class="row">' + GUIDE.milestones.map(function (m, i) { var on = c.badges.indexOf(m) >= 0; return '<button class="btn small ' + (on ? "green" : "white") + '" data-badge="' + i + '">' + (on ? "🏅 " : "") + esc(m) + "</button>"; }).join("") + "</div></div>";
     h += '<div class="card"><h2>📝 這週的小亮點</h2><textarea id="noteIn" placeholder="孩子今天說了什麼、做了什麼？一句話就好"></textarea><p><button class="btn blue" data-addnote="1">儲存</button></p>' +
       (c.notes.length ? c.notes.slice().reverse().map(function (n, ri) { var idx = c.notes.length - 1 - ri; return '<div class="note"><span class="muted">' + new Date(n.ts).toLocaleDateString() + '</span><br>' + esc(n.text) + ' <button class="btn small white" data-delnote="' + idx + '" aria-label="刪除">🗑</button></div>'; }).join("") : '<p class="muted">還沒有紀錄。</p>') + "</div>";
@@ -346,6 +403,9 @@
       h += "<h3>新增孩子：選一個怪獸</h3><div class=\"row\">" + MONS.map(function (m, i) { return used.indexOf(i) >= 0 ? "" : '<button class="kidbtn" style="background:' + TINT[i] + '" data-addkid="' + i + '" aria-label="新增">' + m + "</button>"; }).join("") + "</div>";
     }
     h += "</div>";
+    h += window.MFE_KID_SETTINGS ? window.MFE_KID_SETTINGS() : "";
+    h += window.MFE_SOUND_SETTINGS ? window.MFE_SOUND_SETTINGS() : "";
+    h += '<div class="card"><h2>短語紀錄方式</h2><p class="muted">預設是三種狀態（新／學習中／已會）。如果你想記得更細，可以改成五級：新、聽過、有反應、能指認、主動使用。只是給你自己看的參考，不影響教材。</p><button class="btn ' + (S.detail ? "green" : "white") + '" data-detail="1">' + (S.detail ? "✅ 目前：詳細五級（點一下改回簡單）" : "目前：簡單三種（點一下改成五級）") + "</button></div>";
     h += '<div class="card"><h2>備份</h2><p class="muted">資料只存在這個瀏覽器；換裝置或清除瀏覽器資料會消失。建議偶爾匯出備份。</p><div class="row"><button class="btn blue" data-export="1">⬇ 匯出備份</button><label class="btn white">⬆ 匯入備份<input type="file" id="imp" accept="application/json" style="display:none"></label></div></div>';
     h += '<div class="card"><h2>清除所有資料</h2><button class="btn orange" data-reset="1">清除並重新開始</button></div>';
     return h;
@@ -358,18 +418,23 @@
   function render() {
     var r = route(), parts = r.split("/"), base = parts[0], c = kid();
     $("#kids").innerHTML = S.children.map(function (k) { return '<button class="kidbtn' + (k.id === S.active ? " on" : "") + '" style="background:' + TINT[k.mon] + '" data-kid="' + k.id + '" aria-label="切換孩子">' + MONS[k.mon] + "</button>"; }).join("");
-    $("#tools").innerHTML = '<button class="tool-btn" data-sound="1" aria-label="聲音開關">' + (S.mute ? "🔇" : "🔊") + '</button><button class="tool-btn" data-gear="1" aria-label="家長設定">⚙️</button>';
+    $("#tools").innerHTML = '<button class="tool-btn" data-x="enterkid" aria-label="孩子模式">👶</button><button class="tool-btn" data-sound="1" aria-label="聲音開關">' + (S.mute ? "🔇" : "🔊") + '</button><button class="tool-btn" data-gear="1" aria-label="家長設定">⚙️</button>';
     $("#nav").innerHTML = NAV.map(function (n) { return '<button data-go="' + n[0] + '" class="' + (base === n[0] || (base === "unit" && n[0] === "units") ? "on" : "") + '"><span class="i">' + n[1] + "</span>" + n[2] + "</button>"; }).join("");
     var out = "";
     if (base === "phrases") out = viewPhrases();
     else if (base === "units") out = viewUnits();
     else if (base === "unit") out = viewUnit(parts[1]);
     else if (base === "cards") out = viewCards();
+    else if (base === "sheet") out = viewSheet(parts[1], parts[2]);
     else if (base === "guide") out = viewGuide();
     else if (base === "record") out = viewRecord();
     else if (base === "settings") out = unlocked ? viewSettings() : '<div class="card"><h2>🔒 家長設定</h2><p>需要通過家長鎖才能進入。</p><button class="btn" data-unlock="1">解鎖</button></div>';
+    else if (window.MFE_ROUTES && window.MFE_ROUTES[base]) out = window.MFE_ROUTES[base](parts);
     else out = viewHome();
+    document.body.classList.toggle("kidmode", base === "play");
     $("#view").innerHTML = out;
+    if (window.MFE_AFTER && window.MFE_AFTER[base]) window.MFE_AFTER[base](parts);
+    else if (window.MFE_LEAVE) window.MFE_LEAVE(base);
   }
   function go(r) { if (r !== "settings") unlocked = false; location.hash = r; if (route() === r) render(); window.scrollTo(0, 0); }
   window.addEventListener("hashchange", function () { if (route().split("/")[0] !== "settings") unlocked = false; render(); });
@@ -401,7 +466,10 @@
   }
 
   document.addEventListener("click", function (e) {
-    var t = e.target.closest("[data-go],[data-say],[data-cyc],[data-mode],[data-act],[data-played],[data-scene],[data-setunit],[data-kid],[data-resist],[data-logresist],[data-back],[data-badge],[data-addnote],[data-delnote],[data-unlock],[data-addkid],[data-delkid],[data-export],[data-reset],[data-pat],[data-wcat],[data-pick],[data-rand],[data-clearpick],[data-print],[data-savelyr],[data-play],[data-sound],[data-gear],#gateOk,#gateX,#resistX");
+    var xk = e.target.closest("[data-x]");
+    if (xk && window.MFE_X && window.MFE_X[xk.dataset.x]) { window.MFE_X[xk.dataset.x](xk, e); return; }
+    var t = e.target.closest("[data-go],[data-say],[data-cyc],[data-mode],[data-act],[data-played],[data-scene],[data-setunit],[data-kid],[data-resist],[data-logresist],[data-back],[data-badge],[data-addnote],[data-delnote],[data-unlock],[data-addkid],[data-delkid],[data-export],[data-reset],[data-pat],[data-wcat],[data-pick],[data-rand],[data-clearpick],[data-print],[data-savelyr],[data-play],[data-copy],[data-detail],[data-summary],[data-sound],[data-gear],#gateOk,#gateX,#resistX");
+    if (t && t.dataset.copy) { var txt = t.dataset.copy; try { navigator.clipboard.writeText(txt).then(function () { toast("已複製：" + txt); }, function () { toast(txt); }); } catch (x) { toast(txt); } return; }
     if (!t) return;
     var d = t.dataset, c = kid();
     if (t.id === "gateOk") return submitGate();
@@ -426,7 +494,9 @@
     if (d.gear) return gate(function () { unlocked = true; go("settings"); });
     if (d.savelyr) { var ta = document.getElementById("lyr-" + d.savelyr); if (!S.lyr) S.lyr = {}; S.lyr[d.savelyr] = ta ? ta.value.trim() : ""; save(); toast("已儲存歌詞"); return render(); }
     if (d.say) return speak(d.say);
-    if (d.cyc) { c.phr[d.cyc] = (pstat(c, d.cyc) + 1) % 3; save(); return render(); }
+    if (d.cyc) { if (S.detail) setLevel(c, d.cyc, (lvOf(c, d.cyc) + 1) % 5); else { c.phr[d.cyc] = (pstat(c, d.cyc) + 1) % 3; c.pts = c.pts || {}; c.pts[d.cyc] = c.plays.length; } save(); return render(); }
+    if (d.detail) { S.detail = !S.detail; save(); return render(); }
+    if (d.summary) { var tx = summaryText(c); try { navigator.clipboard.writeText(tx).then(function () { toast("已複製進度摘要"); }, function () { alert(tx); }); } catch (x) { alert(tx); } return; }
     if (d.mode) { S.mode = d.mode; save(); return render(); }
     if (d.act) { openAct = openAct === d.act ? null : d.act; return render(); }
     if (d.played) return played(d.played);
@@ -474,6 +544,7 @@
   });
 
   S = load(); save();
+  window.MFE_API = { getS: function () { return S; }, kid: kid, save: save, speak: speak, toast: toast, gate: gate, go: go, render: render, burst: burst, esc: esc, mon: mon, pic: pic, art: art, cap: cap, sentence: sentence, playsOf: playsOf, WORD: WORD, WCATS: WCATS, LESSONS: LESSONS, LCARDS: LCARDS, PATS: PATS, TINT: TINT };
   render();
   if ("serviceWorker" in navigator && false) { /* PWA 預留（v2.0） */ }
 })();
