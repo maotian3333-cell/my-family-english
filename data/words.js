@@ -24,42 +24,42 @@ window.MFE_WORD_CATS = [
     ["starfruit", "star fruit", "楊桃", "svg:starfruit"], ["sugarapple", "sugar apple", "釋迦", "svg:sugarapple"], ["plum", "plum", "李子", "svg:plum"]
   ]},
   { id: "food", icon: "🍞", name: "食物與飲料", words: [
-    ["milk", "milk", "牛奶", "🥛", "u"], ["water", "water", "水", "💧", "u"], ["juice", "juice", "果汁", "🧃", "u"], ["tea", "tea", "茶", "🍵", "u"],
-    ["bread", "bread", "麵包", "🍞", "u"], ["rice", "rice", "飯", "🍚", "u"], ["noodles", "noodles", "麵", "🍜", "p"], ["egg", "egg", "雞蛋", "🥚"],
-    ["cheese", "cheese", "起司", "🧀", "u"], ["cookie", "cookie", "餅乾", "🍪"], ["cake", "cake", "蛋糕", "🍰", "u"], ["candy", "candy", "糖果", "🍬", "u"],
-    ["icecream", "ice cream", "冰淇淋", "🍦", "u"], ["soup", "soup", "湯", "🍲", "u"], ["dumpling", "dumpling", "水餃", "🥟"], ["sandwich", "sandwich", "三明治", "🥪"],
-    ["pizza", "pizza", "披薩", "🍕", "u"], ["fries", "french fries", "薯條", "🍟", "p"], ["popcorn", "popcorn", "爆米花", "🍿", "u"], ["honey", "honey", "蜂蜜", "🍯", "u"],
-    ["carrot", "carrot", "紅蘿蔔", "🥕"], ["broccoli", "broccoli", "花椰菜", "🥦", "u"], ["corn", "corn", "玉米", "🌽", "u"], ["potato", "potato", "馬鈴薯", "🥔"],
-    ["sweetpotato", "sweet potato", "地瓜", "🍠"], ["cucumber", "cucumber", "小黃瓜", "🥒"], ["mushroom", "mushroom", "香菇", "🍄"], ["chicken", "chicken", "雞肉", "🍗", "u"]
+    ["milk", "milk", "牛奶", "svg:milk", "u"], ["water", "water", "水", "svg:water", "u"], ["juice", "juice", "果汁", "svg:juice", "u"], ["tea", "tea", "茶", "svg:tea", "u"],
+    ["bread", "bread", "麵包", "svg:bread", "u"], ["rice", "rice", "飯", "svg:rice", "u"], ["noodles", "noodles", "麵", "svg:noodles", "p"], ["egg", "egg", "雞蛋", "svg:egg"],
+    ["cheese", "cheese", "起司", "svg:cheese", "u"], ["cookie", "cookie", "餅乾", "svg:cookie"], ["cake", "cake", "蛋糕", "svg:cake", "u"], ["candy", "candy", "糖果", "svg:candy", "u"],
+    ["icecream", "ice cream", "冰淇淋", "svg:icecream", "u"], ["soup", "soup", "湯", "svg:soup", "u"], ["dumpling", "dumpling", "水餃", "svg:dumpling"], ["sandwich", "sandwich", "三明治", "svg:sandwich"],
+    ["pizza", "pizza", "披薩", "svg:pizza", "u"], ["fries", "french fries", "薯條", "svg:fries", "p"], ["popcorn", "popcorn", "爆米花", "svg:popcorn", "u"], ["honey", "honey", "蜂蜜", "svg:honey", "u"],
+    ["carrot", "carrot", "紅蘿蔔", "svg:carrot"], ["broccoli", "broccoli", "花椰菜", "svg:broccoli", "u"], ["corn", "corn", "玉米", "svg:corn", "u"], ["potato", "potato", "馬鈴薯", "svg:potato"],
+    ["sweetpotato", "sweet potato", "地瓜", "svg:sweetpotato"], ["cucumber", "cucumber", "小黃瓜", "svg:cucumber"], ["mushroom", "mushroom", "香菇", "svg:mushroom"], ["chicken", "drumstick", "雞腿", "svg:chicken"]
   ]},
   { id: "toys", icon: "⚽", name: "玩具", words: [
-    ["ball", "ball", "球", "⚽"], ["car", "car", "車子", "🚗"], ["truck", "truck", "卡車", "🚚"], ["train", "train", "火車", "🚂"],
-    ["airplane", "airplane", "飛機", "✈️"], ["bus", "bus", "公車", "🚌"], ["bike", "bike", "腳踏車", "🚲"], ["blocks", "blocks", "積木", "🧱", "p"],
-    ["teddy", "teddy bear", "泰迪熊", "🧸"], ["book", "book", "書", "📖"], ["balloon", "balloon", "氣球", "🎈"], ["crayons", "crayons", "蠟筆", "🖍️", "p"],
-    ["puzzle", "puzzle", "拼圖", "🧩"], ["drum", "drum", "鼓", "🥁"], ["piano", "piano", "鋼琴", "🎹"], ["guitar", "guitar", "吉他", "🎸"],
-    ["kite", "kite", "風箏", "🪁"], ["bubbles", "bubbles", "泡泡", "🫧", "p"], ["rocket", "rocket", "火箭", "🚀"], ["boat", "boat", "船", "⛵"]
+    ["ball", "ball", "球", "svg:ball"], ["car", "car", "車子", "svg:car"], ["truck", "truck", "卡車", "svg:truck"], ["train", "train", "火車", "svg:train"],
+    ["airplane", "airplane", "飛機", "svg:airplane"], ["bus", "bus", "公車", "svg:bus"], ["bike", "bike", "腳踏車", "svg:bike"], ["blocks", "blocks", "積木", "svg:blocks", "p"],
+    ["teddy", "teddy bear", "泰迪熊", "svg:teddy"], ["book", "book", "書", "svg:book"], ["balloon", "balloon", "氣球", "svg:balloon"], ["crayons", "crayons", "蠟筆", "svg:crayons", "p"],
+    ["puzzle", "puzzle", "拼圖", "svg:puzzle"], ["drum", "drum", "鼓", "svg:drum"], ["piano", "piano", "鋼琴", "svg:piano"], ["guitar", "guitar", "吉他", "svg:guitar"],
+    ["kite", "kite", "風箏", "svg:kite"], ["bubbles", "bubbles", "泡泡", "svg:bubbles", "p"], ["rocket", "rocket", "火箭", "svg:rocket"], ["boat", "boat", "船", "svg:boat"]
   ]},
   { id: "home", icon: "🥄", name: "家中用品", words: [
-    ["cup", "cup", "杯子", "🥤"], ["bottle", "bottle", "奶瓶", "🍼"], ["spoon", "spoon", "湯匙", "🥄"], ["fork", "fork", "叉子", "🍴"],
-    ["bowl", "bowl", "碗", "🥣"], ["plate", "plate", "盤子", "🍽️"], ["phone", "phone", "手機", "📱"], ["keys", "keys", "鑰匙", "🔑", "p"],
-    ["toothbrush", "toothbrush", "牙刷", "🪥"], ["soap", "soap", "肥皂", "🧼", "u"], ["tissue", "toilet paper", "衛生紙", "🧻", "u"], ["bed", "bed", "床", "🛏️"],
-    ["chair", "chair", "椅子", "🪑"], ["door", "door", "門", "🚪"], ["light", "light", "燈", "💡"], ["clock", "clock", "時鐘", "⏰"],
-    ["bag", "bag", "包包", "🎒"], ["umbrella", "umbrella", "雨傘", "☂️"], ["mirror", "mirror", "鏡子", "🪞"], ["tv", "TV", "電視", "📺"],
-    ["computer", "computer", "電腦", "💻"], ["pen", "pen", "筆", "🖊️"], ["paper", "paper", "紙", "📄", "u"]
+    ["cup", "cup", "杯子", "svg:cup"], ["bottle", "bottle", "奶瓶", "svg:bottle"], ["spoon", "spoon", "湯匙", "svg:spoon"], ["fork", "fork", "叉子", "svg:fork"],
+    ["bowl", "bowl", "碗", "svg:bowl"], ["plate", "plate", "盤子", "svg:plate"], ["phone", "phone", "手機", "svg:phone"], ["keys", "keys", "鑰匙", "svg:keys", "p"],
+    ["toothbrush", "toothbrush", "牙刷", "svg:toothbrush"], ["soap", "soap", "肥皂", "svg:soap", "u"], ["tissue", "toilet paper", "衛生紙", "svg:tissue", "u"], ["bed", "bed", "床", "svg:bed"],
+    ["chair", "chair", "椅子", "svg:chair"], ["door", "door", "門", "svg:door"], ["light", "light", "燈", "svg:light"], ["clock", "clock", "時鐘", "svg:clock"],
+    ["bag", "bag", "包包", "svg:bag"], ["umbrella", "umbrella", "雨傘", "svg:umbrella"], ["mirror", "mirror", "鏡子", "svg:mirror"], ["tv", "TV", "電視", "svg:tv"],
+    ["computer", "computer", "電腦", "svg:computer"], ["pen", "pen", "筆", "svg:pen"], ["paper", "paper", "紙", "svg:paper", "u"]
   ]},
   { id: "clothes", icon: "👕", name: "衣物", words: [
-    ["shoes", "shoes", "鞋子", "👟", "p"], ["socks", "socks", "襪子", "🧦", "p"], ["hat", "hat", "帽子", "🧢"], ["jacket", "jacket", "外套", "🧥"],
-    ["pants", "pants", "褲子", "👖", "p"], ["shirt", "shirt", "上衣", "👕"], ["dress", "dress", "洋裝", "👗"], ["glasses", "glasses", "眼鏡", "👓", "p"],
-    ["gloves", "gloves", "手套", "🧤", "p"], ["scarf", "scarf", "圍巾", "🧣"], ["boots", "boots", "靴子", "🥾", "p"], ["sandals", "sandals", "涼鞋", "🩴", "p"]
+    ["shoes", "shoes", "鞋子", "svg:shoes", "p"], ["socks", "socks", "襪子", "svg:socks", "p"], ["hat", "hat", "帽子", "svg:hat"], ["jacket", "jacket", "外套", "svg:jacket"],
+    ["pants", "pants", "褲子", "svg:pants", "p"], ["shirt", "shirt", "上衣", "svg:shirt"], ["dress", "dress", "洋裝", "svg:dress"], ["glasses", "glasses", "眼鏡", "svg:glasses", "p"],
+    ["gloves", "gloves", "手套", "svg:gloves", "p"], ["scarf", "scarf", "圍巾", "svg:scarf"], ["boots", "boots", "靴子", "svg:boots", "p"], ["sandals", "sandals", "涼鞋", "svg:sandals", "p"]
   ]},
   { id: "animals", icon: "🐶", name: "動物", words: [
-    ["dog", "dog", "狗", "🐶"], ["cat", "cat", "貓", "🐱"], ["bird", "bird", "鳥", "🐦"], ["fish", "fish", "魚", "🐟"],
-    ["duck", "duck", "鴨子", "🦆"], ["cow", "cow", "牛", "🐮"], ["pig", "pig", "豬", "🐷"], ["sheep", "sheep", "綿羊", "🐑"],
-    ["horse", "horse", "馬", "🐴"], ["rabbit", "rabbit", "兔子", "🐰"], ["elephant", "elephant", "大象", "🐘"], ["monkey", "monkey", "猴子", "🐵"],
-    ["lion", "lion", "獅子", "🦁"], ["tiger", "tiger", "老虎", "🐯"], ["bear", "bear", "熊", "🐻"], ["panda", "panda", "貓熊", "🐼"],
-    ["frog", "frog", "青蛙", "🐸"], ["butterfly", "butterfly", "蝴蝶", "🦋"], ["bee", "bee", "蜜蜂", "🐝"], ["ant", "ant", "螞蟻", "🐜"],
-    ["turtle", "turtle", "烏龜", "🐢"], ["hen", "chicken", "小雞／母雞", "🐔"], ["giraffe", "giraffe", "長頸鹿", "🦒"], ["dinosaur", "dinosaur", "恐龍", "🦖"],
-    ["snail", "snail", "蝸牛", "🐌"], ["whale", "whale", "鯨魚", "🐳"]
+    ["dog", "dog", "狗", "svg:dog"], ["cat", "cat", "貓", "svg:cat"], ["bird", "bird", "鳥", "svg:bird"], ["fish", "fish", "魚", "svg:fish"],
+    ["duck", "duck", "鴨子", "svg:duck"], ["cow", "cow", "牛", "svg:cow"], ["pig", "pig", "豬", "svg:pig"], ["sheep", "sheep", "綿羊", "svg:sheep"],
+    ["horse", "horse", "馬", "svg:horse"], ["rabbit", "rabbit", "兔子", "svg:rabbit"], ["elephant", "elephant", "大象", "svg:elephant"], ["monkey", "monkey", "猴子", "svg:monkey"],
+    ["lion", "lion", "獅子", "svg:lion"], ["tiger", "tiger", "老虎", "svg:tiger"], ["bear", "bear", "熊", "svg:bear"], ["panda", "panda", "貓熊", "svg:panda"],
+    ["frog", "frog", "青蛙", "svg:frog"], ["butterfly", "butterfly", "蝴蝶", "svg:butterfly"], ["bee", "bee", "蜜蜂", "svg:bee"], ["ant", "ant", "螞蟻", "svg:ant"],
+    ["turtle", "turtle", "烏龜", "svg:turtle"], ["hen", "chicken", "小雞／母雞", "svg:hen"], ["giraffe", "giraffe", "長頸鹿", "svg:giraffe"], ["dinosaur", "dinosaur", "恐龍", "svg:dinosaur"],
+    ["snail", "snail", "蝸牛", "svg:snail"], ["whale", "whale", "鯨魚", "svg:whale"]
   ]}
 ];
 
