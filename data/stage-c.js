@@ -137,18 +137,4 @@
     ]}
   });
 
-  var b = window.MFE_SHEETS.build, S = b.S, C = b.C, M = b.M, Ci = b.Ci, X = b.X, H = b.H, SP = window.MFE_SHEETS.SPEC;
-  function set(id, pics, say, wordsFor) {
-    var cards = pics.map(function (p, i) { return [p, wordsFor[i]]; });
-    SP[id] = {
-      2: [S("聲音貼紙", say[0], pics[0], 4, "貼一個貼紙，你放一次聲音（或發出聲音）。孩子貼哪裡都可以。"), C("塗塗看", say[1], [pics[0], pics[1]], "邊塗邊說圖的名稱，你偶爾發出開頭的聲音就好。")],
-      3: [M("圖和影子連連看", say[1], pics.map(function (p) { return [p, p]; }), true, "連起來時說名稱；孩子不說也沒關係。"),
-          Ci("聽聲音，圈圖", pics.map(function (p, i) { return { say: "/" + (wordsFor[i] === "cat" ? "k" : wordsFor[i].charAt(0)) + "/ — " + wordsFor[i], opts: [pics[i], pics[(i + 1) % 3], pics[(i + 2) % 3]], ans: 0 }; }), "你發出灰色的聲音（只念斜線裡的字母聲音），孩子圈出（或指出）開頭相同的圖。")],
-      4: [M("聲音和圖連連看", "", pics.map(function (p, i) { return [p, wordsFor[i].charAt(0)]; }), false, "圖片的開頭聲音是哪個字母？請孩子連線，你唸聲音。字母只是記號，不要求認字。"),
-          X("聲音卡（剪下來玩）", say[1], cards, "剪下卡片，放聲音，孩子找到開頭相同的卡片。")]
-    };
-  }
-  set("C1", ["art:socks", "art:apple", "art:tiger"], ["Sss, sock!", "Sock! Apple! Tiger!"], ["sock", "apple", "tiger"]);
-  set("C2", ["art:icecream", "art:pig", "art:b_nose"], ["Pp, pig!", "Pig! Nose! Ice cream!"], ["ice cream", "pig", "nose"]);
-  set("C3", ["art:milk", "art:dog", "art:cat"], ["Mm, milk!", "Milk! Dog! Cat!"], ["milk", "dog", "cat"]);
 })();
