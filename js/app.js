@@ -244,10 +244,11 @@
   }
   function viewUnits() {
     var c = kid();
-    var h = '<h1>📚 單元</h1><p class="muted">不依日期，孩子準備好再往下；孩子抗拒時，退回或重複都沒關係。</p>';
-    h += '<h2>階段 A：生活情境句與歌曲</h2><div class="grid">' + LESSONS.filter(function (l) { return l.stage === "A"; }).map(function (l) { return unitCard(l, c); }).join("") + "</div>";
-    h += '<div class="card" style="margin-top:16px"><h3>階段 A 檢查點（參考，不用全部達成）</h3>' + list(GUIDE.checkpoints) + '<p class="muted">達到約一半以上，就可以考慮進入階段 B；階段 B 也可以和階段 A 混著玩。</p></div>';
-    h += '<h2 style="margin-top:20px">階段 B：單字放進句子框</h2><p class="muted">只換一個眼前的詞，孩子聽得懂、會指就是成功，不要求開口。</p><div class="grid">' + LESSONS.filter(function (l) { return l.stage === "B"; }).map(function (l) { return unitCard(l, c); }).join("") + "</div>";
+    var h = '<h1>📚 單元（2 到 6 歲）</h1><p class="muted">每個年齡有自己的學習內容。不依日期，孩子準備好再往下；孩子抗拒時，退回或重複都沒關係。</p>';
+    (window.MFE_AGES || []).forEach(function (a) {
+      h += '<h2 style="margin-top:22px">' + esc(a.name) + '</h2><p class="muted"><b>' + esc(a.focus) + "</b> " + esc(a.how) + '</p><p class="muted">⏱ ' + esc(a.daily || "") + '</p><div class="grid">' + a.units.map(function (u) { return unitCard(LESSON[u], c); }).join("") + "</div>" + (window.MFE_UNIT_ACTS && a.review ? '<div style="margin-top:12px">' + window.MFE_UNIT_ACTS(a.review) + "</div>" : "");
+      if (a.age === 3) h += '<div class="card" style="margin-top:16px"><h3>3 歲檢查點（參考，不用全部達成）</h3>' + list(GUIDE.checkpoints) + '<p class="muted">達到約一半以上，就可以考慮進入下一階段；也可以混著玩。</p></div>';
+    });
     return h;
   }
   function viewUnit(id) {
@@ -273,8 +274,8 @@
     h += '<div class="card"><h2>兩個孩子一起用</h2><p>' + esc(l.twoKids) + "</p></div>";
     h += '<div class="card"><h2>孩子抗拒時</h2>' + list(l.resist) + '<div class="note">抗拒常常不是英文本身，而是「這本書／這個情境和他預期的不一樣」。先換回他熟悉的方式，只換一小部分。</div></div>';
     h += "</div></div>";
-    h += sheetLinks(l.id);
-    h += "<details open><summary>觀察、紙本轉化、複習</summary><p><b>觀察重點：</b>" + esc(l.observe) + "</p><p><b>紙本轉化：</b>" + esc(l.paper) + "</p><p><b>複習：</b>" + esc(l.review) + "</p></details>";
+    h += window.MFE_UNIT_ACTS ? window.MFE_UNIT_ACTS(l.id) : "";
+    h += '<p class="muted">✔ 觀察：' + esc(l.observe) + "</p>";
     var k = l.kid;
     h += "<details><summary>孩子模式預留（目前只是參考）</summary><ul><li><b>主角：</b>" + esc(k.hero) + "</li><li><b>按鈕：</b>" + esc(k.buttons) + "</li><li><b>遊戲：</b>" + esc(k.game) + "</li><li><b>色系：</b>" + esc(k.palette) + "</li><li>" + esc(k.note) + "</li></ul></details>";
     h += '<div class="row">' + (i > 0 ? '<button class="btn white" data-go="unit/' + LESSONS[i - 1].id + '">← ' + LESSONS[i - 1].id + "</button>" : "") + (i < LESSONS.length - 1 ? '<button class="btn white" data-go="unit/' + LESSONS[i + 1].id + '">' + LESSONS[i + 1].id + " →</button>" : "") + "</div>";
@@ -347,26 +348,6 @@
   }
 
   /* ---------- 紙本學習單 ---------- */
-  function sheetLinks(id) {
-    var W = window.MFE_SHEETS; if (!W || !W.SPEC[id]) return "";
-    var d = {
-      2: "貼貼紙、塗色。練手指力量，聽到就有反應。",
-      3: "連連看、圈圈看、描虛線。用手指指出就算完成。",
-      4: "配對說對的話、排順序、剪卡片、貼紙表。"
-    };
-    return '<div class="card"><h2>📄 紙本學習單（PDF）</h2><p class="muted">依年齡分三份，列印後直接玩。孩子還小也可以先挑 2–3 歲那份，只貼貼紙就很好。</p><div class="dl-list">' +
-      [2, 3, 4].map(function (a) {
-        return '<div class="sub"><b>' + W.AGES[a] + "</b><br><span class=\"muted\">" + d[a] + '</span><p class="row" style="margin:8px 0 0"><a class="btn small blue" href="worksheets/' + id + "-" + a + '.pdf" download>⬇ 下載 PDF</a><button class="btn small white" data-go="sheet/' + id + "/" + a + '">網頁預覽／列印</button></p></div>';
-      }).join("") + "</div></div>";
-  }
-  function viewSheet(id, age) {
-    var W = window.MFE_SHEETS; age = +age || 2;
-    var h = '<div class="sheet-bar"><button class="btn small white" data-go="unit/' + esc(id) + '">← 回教材卡</button>' +
-      [2, 3, 4].map(function (a) { return '<button class="btn small ' + (a === age ? "" : "white") + '" data-go="sheet/' + esc(id) + "/" + a + '">' + W.AGES[a] + "</button>"; }).join("") +
-      '<button class="btn small green" data-print="1">🖨 列印／存成 PDF</button></div>';
-    return h + W.render(id, age);
-  }
-
   /* ---------- 指南 ---------- */
   function viewGuide() {
     var h = "<h1>🧭 家長通用指南</h1><div class=\"card\"><h2>不背單字的 5 個原則</h2>" + GUIDE.principles.map(function (p, i) { return "<p><b>" + (i + 1) + ". " + esc(p[0]) + "</b><br>" + esc(p[1]) + "</p>"; }).join("") + "</div>";
@@ -425,13 +406,12 @@
     else if (base === "units") out = viewUnits();
     else if (base === "unit") out = viewUnit(parts[1]);
     else if (base === "cards") out = viewCards();
-    else if (base === "sheet") out = viewSheet(parts[1], parts[2]);
     else if (base === "guide") out = viewGuide();
     else if (base === "record") out = viewRecord();
     else if (base === "settings") out = unlocked ? viewSettings() : '<div class="card"><h2>🔒 家長設定</h2><p>需要通過家長鎖才能進入。</p><button class="btn" data-unlock="1">解鎖</button></div>';
     else if (window.MFE_ROUTES && window.MFE_ROUTES[base]) out = window.MFE_ROUTES[base](parts);
     else out = viewHome();
-    document.body.classList.toggle("kidmode", base === "play");
+    document.body.classList.toggle("kidmode", base === "play" || base === "act");
     $("#view").innerHTML = out;
     if (window.MFE_AFTER && window.MFE_AFTER[base]) window.MFE_AFTER[base](parts);
     else if (window.MFE_LEAVE) window.MFE_LEAVE(base);
