@@ -1,6 +1,6 @@
 // 離線快取：核心檔案先存起來，PDF 學習單第一次打開時再存。
 // 更新網站內容時，把 VERSION 改成新的編號，舊快取會自動清除。
-var VERSION = "mfe-v2.8";
+var VERSION = "mfe-v2.13";
 var CORE = [
   "./",
   "index.html",
@@ -11,12 +11,16 @@ var CORE = [
   "js/activities.js",
   "js/app.js",
   "js/kid.js",
+  "js/books.js",
   "js/kinds.js",
   "js/di.js",
   "js/sound.js",
   "data/art-b.js",
   "data/art-c.js",
   "data/art-d.js",
+  "data/art-e.js",
+  "data/art-f.js",
+  "data/scenes.js",
   "data/art.js",
   "data/curriculum.js",
   "data/lessons-b.js",
@@ -29,6 +33,9 @@ var CORE = [
   "data/practice.js",
   "data/practice2.js",
   "data/phonics.js",
+  "data/stage-e.js",
+  "data/stories.js",
+  "data/dialogs.js",
   "data/stage-c.js",
   "data/words-b.js",
   "data/words.js",
