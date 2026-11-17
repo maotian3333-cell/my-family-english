@@ -93,15 +93,32 @@
   }
 
   /* ---------- 發音（瀏覽器內建 TTS；字母聲音不適用） ---------- */
-  function speak(text) {
+  var voiceCache = {};
+  function pickVoice(lang) {
+    if (voiceCache[lang]) return voiceCache[lang];
+    try {
+      var vs = speechSynthesis.getVoices(), pre = lang.toLowerCase().replace("_", "-"), i, best = null;
+      for (i = 0; i < vs.length; i++) if (vs[i].lang && vs[i].lang.toLowerCase().replace("_", "-") === pre) { if (!best || /female|samantha|google|natural|premium/i.test(vs[i].name)) best = vs[i]; }
+      if (best) voiceCache[lang] = best; return best;
+    } catch (e) { return null; }
+  }
+  /* 語速：兒童模式更慢。單字（≤ 2 個字）0.55、句子 0.7；一般畫面單字 0.7、句子 0.8。opts: {rate, queue, lang} */
+  function speak(text, opts) {
+    opts = opts || {};
     if (S.mute) { toast("聲音已關閉（右上角喇叭可開啟）"); return; }
     if (!("speechSynthesis" in window)) { toast("此瀏覽器不支援朗讀"); return; }
     try {
-      speechSynthesis.cancel();
-      var u = new SpeechSynthesisUtterance(text.replace(/___/g, "apple"));
-      u.lang = "en-US"; u.rate = 0.85; speechSynthesis.speak(u);
+      if (!opts.queue) speechSynthesis.cancel();
+      var t = text.replace(/___/g, "apple"), kid = document.body.classList.contains("kidmode"), short = t.split(/\s+/).length <= 2;
+      var u = new SpeechSynthesisUtterance(t), lang = opts.lang || "en-US", v = pickVoice(lang);
+      u.lang = lang; if (v) u.voice = v;
+      u.rate = opts.rate || (lang === "en-US" ? (kid ? (short ? 0.55 : 0.68) : (short ? 0.7 : 0.8)) : 0.85);
+      u.pitch = kid ? 1.1 : 1;
+      speechSynthesis.speak(u);
     } catch (e) { toast("朗讀失敗"); }
   }
+  function speakZh(text, opts) { opts = opts || {}; opts.lang = "zh-TW"; if (S.mute) return; try { speak(text, opts); } catch (e) { } }
+  if ("speechSynthesis" in window) { try { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = function () { voiceCache = {}; }; } catch (e) { } }
 
   /* ---------- 家長鎖：一元一次方程式 ---------- */
   var gateCb = null, gateAns = 0;
@@ -207,7 +224,7 @@
         return '<button class="btn" data-act="' + a[0] + '"><span class="em">' + a[1] + "</span>" + a[2] + "<small>" + a[3] + "</small></button>";
       }).join("") + "</div></div>";
     h += '<div id="actArea">' + (openAct ? activityBody(l, openAct, c) : "") + "</div>";
-    h += '<div class="card"><div class="row"><button class="btn orange" data-resist="1">🙅 孩子今天不想</button><button class="btn blue" data-go="phrases">📍 我現在在哪裡？</button><button class="btn green" data-go="cards">🃏 拿圖卡來玩</button></div></div>';
+    h += '<div class="card"><div class="row"><button class="btn orange" data-resist="1">🙅 孩子今天不想</button><button class="btn blue" data-go="phrases">📍 我現在在哪裡？</button><button class="btn white" data-go="books">📖 小繪本與對話</button><button class="btn green" data-go="cards">🃏 拿圖卡來玩</button></div></div>';
     h += '<div class="card"><h2>🏅 貼紙冊（' + sc + " / " + LESSONS.length + "）</h2><div class=\"stickers\">" + LESSONS.map(function (x, i) {
       var n = playsOf(c, x.id), on = n >= 3;
       return '<div class="stk' + (on ? "" : " off") + '"><div class="sb" style="background:' + STK_COL[i % STK_COL.length] + ";--rot:" + (i % 2 ? 5 : -5) + 'deg">' + x.icon + "</div>" + esc(x.id) + " " + esc(x.title) + (on ? "" : '<br><span class="muted">再玩 ' + (3 - n) + " 次</span>") + "</div>";
@@ -251,6 +268,31 @@
     });
     return h;
   }
+  /* 分階段／分單元的家長叮嚀 */
+  var STAGE_TIP = {
+    Z: "2–3 歲：大人先做、孩子看就算參與，不要求開口；每次 3–5 分鐘，孩子轉頭走開就收，不補救、不勸說。",
+    A: "日常互動：放在真實情境裡說（吃飯、換衣、洗手），一天 1–2 次就夠；先用中文帶，再補一句英文；不靠螢幕。",
+    B: "詞彙與句型：先用真的東西說，再讓孩子用「看一看」複習；孩子還不會換詞沒關係，先整句記。每次一個單元、5–10 分鐘。",
+    C: "字母聲音：教「聲音」不教字母名稱（/b/ 不是 bee）；電腦發音不準的音請用家長自己的錄音；每次只 3–4 個聲音。",
+    D: "整合與故事對話：當角色扮演玩，先聽、再模仿，不糾正文法；同一本書可以重複很多天。"
+  };
+  var UNIT_TIP = {
+    B4: "數數時請一個一個摸著數，不要只背；數字卡上的圓點是用來學習數量的，不是答案提示（遊戲題目的選項只有數字）。",
+    B5: "「I like apples」畫面會出現好幾個，是因為英文用複數；真實生活中拿一顆、一堆都可以對比著說。",
+    B6: "用真的玩具車，邊推邊說 Here comes the car；車子從旁邊開進來的畫面，是想讓孩子聽「來了」的意思。",
+    B7: "動作單元請家長自己示範（邊說邊做），畫面裡的小怪獸會跟著跑、跳、坐、睡；孩子站起來跟著做比看螢幕有效。",
+    B8: "感受單元：先用中文接納孩子的情緒（「你生氣了」），再說 I'm angry；不要在孩子真的情緒上來時當教學。",
+    B9: "位置一定要用真的球和盒子操作（放進去、放上面、放下面）；螢幕只做複習。",
+    B10: "找生活中的對比：大／小、熱／冷，讓孩子摸到再說。",
+    Z5: "「Where is…?」的畫面會先把東西藏起來，點一下才出現；請跟孩子一起「找」，找到後說 Here it is!",
+    A1: "「Give me…」畫面的箭頭是「拿過來」的意思；真實情境中請孩子拿給你，你說 Thank you。"
+  };
+  function kidEntry(id) { return !!(LCARDS[id] || (window.MFE_DI && MFE_DI.kidSets && MFE_DI.kidSets(id))); }
+  function tipsCard(l) {
+    var t = (STAGE_TIP[l.stage] ? "<li><b>這個階段：</b>" + esc(STAGE_TIP[l.stage]) + "</li>" : "") + (UNIT_TIP[l.id] ? "<li><b>這個單元：</b>" + esc(UNIT_TIP[l.id]) + "</li>" : "");
+    t += kidEntry(l.id) ? "<li><b>孩子模式：</b>有（地圖上的小島）。建議大人陪著玩，每次 5 分鐘內。</li>" : '<li><b>孩子模式：</b>這個單元沒有螢幕版，設計上以真人互動為主，請直接照下面的腳本做。可搭配 <a href="#books">小繪本與對話</a>。</li>';
+    return '<div class="card warm"><h2>💡 給家長的叮嚀</h2><ul>' + t + "</ul></div>";
+  }
   function viewUnit(id) {
     var c = kid(), l = LESSON[id];
     if (!l) return "<p>找不到這個單元。</p>";
@@ -259,6 +301,7 @@
     h += '<div class="card soft"><div class="muted">階段 ' + l.stage + "</div><h1>" + l.icon + " " + l.id + " " + esc(l.title) + "</h1><p><b>目標：</b>" + esc(l.goal) + "</p>" +
       '<div class="row"><button class="btn green" data-played="unit">✅ 一起玩過</button>' + (c.unit === l.id ? '<span class="tag y" style="align-self:center">目前單元</span>' : '<button class="btn blue" data-setunit="' + l.id + '">設為目前單元</button>') +
       '<button class="btn orange" data-resist="1">🙅 孩子今天不想</button></div></div>';
+    h += tipsCard(l);
     if (LCARDS[l.id]) h += '<div class="card"><button class="btn blue" data-go="cards/' + LCARDS[l.id].pat + "/" + LCARDS[l.id].cat + '">🃏 用圖卡練習這個單元</button> <span class="muted">有圖、有發音、自動組好完整句</span></div>';
     h += '<div class="two"><div>';
     h += '<div class="card"><h2>句子</h2><p class="muted">整句記憶：先當「情境配對」學會，不要求換詞。</p>' + lessonPhrases(l, c) +
@@ -313,6 +356,10 @@
     if (pat === "touch_your") return "Touch your " + n + ".";
     if (pat === "i_like") return "I like " + plural(w) + ".";
     if (pat === "here_comes") return "Here comes the " + n + ".";
+    if (pat === "i_can") return "I can " + n + ".";
+    if (pat === "simon") return "Simon says, " + n + "!";
+    if (pat === "im") return "I'm " + n + ".";
+    if (pat === "is_prep") return "The ball is " + n + " the box.";
     return n;
   }
   function viewCards() {
@@ -524,7 +571,7 @@
   });
 
   S = load(); save();
-  window.MFE_API = { getS: function () { return S; }, kid: kid, save: save, speak: speak, toast: toast, gate: gate, go: go, render: render, burst: burst, esc: esc, mon: mon, pic: pic, art: art, cap: cap, sentence: sentence, playsOf: playsOf, WORD: WORD, WCATS: WCATS, LESSONS: LESSONS, LCARDS: LCARDS, PATS: PATS, TINT: TINT };
+  window.MFE_API = { getS: function () { return S; }, kid: kid, save: save, speak: speak, speakZh: speakZh, toast: toast, gate: gate, go: go, render: render, burst: burst, esc: esc, mon: mon, pic: pic, art: art, cap: cap, sentence: sentence, playsOf: playsOf, WORD: WORD, WCATS: WCATS, LESSONS: LESSONS, LCARDS: LCARDS, PATS: PATS, TINT: TINT };
   render();
   if ("serviceWorker" in navigator && false) { /* PWA 預留（v2.0） */ }
 })();

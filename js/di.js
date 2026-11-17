@@ -36,6 +36,19 @@
   function sameSnd(a, b) { return a === b || (SAME[a] && SAME[a].indexOf(b) >= 0); }
   window.MFE_DI = { TPL: TPL, NEAR_CVC: NEAR_CVC, FAR_CVC: FAR_CVC, LET_UNITS: LET_UNITS, CVC_UNITS: CVC_UNITS, PAT_UNITS: Object.keys(GROUPS), GROUPS: GROUPS };
 
+
+  /* 幼兒模式用：每個概念群組的正例／近反例／遠反例（字詞條目），與聲音播放 */
+  window.MFE_DI.kidSets = function (u) {
+    if (!isDI(u)) return null;
+    return groupsOf(u).map(function (g) {
+      var ng = negsOf(u, g), pos = (g.pos || []).filter(function (id) { return W[id]; }).map(function (id) { return W[id]; });
+      return { key: g.key, sym: g.sym, big: g.big, mode: g.mode, snd: g.snd || null, letter: isLet(u),
+        pos: pos, near: ng.near.filter(function (id) { return W[id]; }).map(function (id) { return W[id]; }), far: ng.far.filter(function (id) { return W[id]; }).map(function (id) { return W[id]; }),
+        exId: isLet(u) && g.snd ? (ACT[u].lex[g.snd] || [])[0] : null };
+    });
+  };
+  window.MFE_DI.playSound = function (g) { if (g && g.snd) say({ sound: g.snd, w: W[g.exId] || g.pos[0] }); else if (g) A.speak(g.pos[0][1]); };
+
   function isLet(u) { return LET_UNITS.indexOf(u) >= 0; }
   function isDI(u) { return isLet(u) || !!GROUPS[u]; }
   function sndLab(l) { return l === "x" ? "/ks/" : l === "q" ? "/kw/" : "/" + (l === "c" ? "k" : l) + "/"; }

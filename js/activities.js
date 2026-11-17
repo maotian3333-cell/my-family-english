@@ -39,6 +39,7 @@
     });
     return { unit: unit, v: v, age: s.age, title: s.title, icon: s.icon, tip: s.tip, rounds: rounds, review: true };
   }
+  var FORCE = null;
   function gen(unit, v, more) {
     var s = ACT[unit]; if (!s) return null;
     if (v === "t") return KIND.teach.genTeach(unit);
@@ -53,6 +54,7 @@
       if (more) { var uq = []; s.plans.forEach(function (pl) { pl.forEach(function (kk) { if (uq.indexOf(kk) < 0) uq.push(kk); }); }); plan = shuf(uq, r).slice(0, 6); }
       else plan = s.plans[((v % 3) + 3) % 3];
     } else if (more) plan = plan.concat(rot(s.plan, v + 1));
+    if (FORCE && !more) plan = [FORCE, FORCE].concat(FORCE === "disc" ? [FORCE] : []);
     function sayT(i) { var t = s.say; return Array.isArray(t) ? t[((i % t.length) + t.length) % t.length] : t; }
     plan.forEach(function (k, ri) {
       var qs = [], n, q, t, m;
@@ -77,7 +79,7 @@
           var c = ns[(i + ri) % 5], ob = objs[(i + ri) % objs.length], nw = W["n" + c];
           var cand = [1, 2, 3, 4, 5].filter(function (z) { return z !== c; }); var d = shuf(cand, r).slice(0, 2);
           var os = shuf([c].concat(d), r);
-          qs.push({ w: ob, n: c, lab: "How many? " + NUMW[c], opts: os.map(function (z) { return { w: W["n" + z] }; }), ok: os.indexOf(c), au: { say: "How many " + ob[1] + (ob[4] ? "" : "s") + "?" }, fin: NUMW[c] });
+          qs.push({ w: ob, n: c, lab: "How many? " + NUMW[c], opts: os.map(function (z) { return { t: String(z) }; }), ok: os.indexOf(c), au: { say: "How many " + ob[1] + (ob[4] ? "" : "s") + "?" }, fin: NUMW[c] });
         }
       } else if (k === "lpick" && s.lex) {
         var lts = Object.keys(s.lex);
@@ -238,10 +240,11 @@
   function cur() { return flat[D.i]; }
   function later(f, ms) { clearTimeout(tm); tm = setTimeout(f, ms); }
   function start(unit, vv) {
+    FORCE = null; if (typeof vv === "string" && vv.indexOf("k-") === 0) { FORCE = vv.slice(2); vv = "1"; if (window.MFE_KINDS_OF && window.MFE_KINDS_OF(unit).indexOf(FORCE) < 0) FORCE = null; }
     var teach = vv === "t", rnd = vv === "r", v = teach ? "t" : rnd ? 3 + Math.floor(Math.random() * 1000000) : Math.max(0, Math.min(2, (+vv || 1) - 1)), d = gen(unit, v, rnd), host = document.getElementById("xd");
     if (!d || !host) return;
     flat = []; d.rounds.forEach(function (r) { r.qs.forEach(function (q) { flat.push({ k: r.k, q: q, n: r.qs.length }); }); });
-    D = { d: d, v: v, i: 0, tip: false, st: {}, lock: false, rnd: rnd, teach: teach };
+    D = { d: d, v: v, i: 0, tip: false, st: {}, lock: false, rnd: rnd, teach: teach, seen: {}, miss: 0, force: FORCE, stars: 0 };
     draw(true);
   }
   function opBtn(o, i, extra) { return '<button class="xo' + (extra || "") + '" data-x="axpick" data-i="' + i + '">' + opHtml(o) + "</button>"; }
@@ -297,7 +300,10 @@
     var host = document.getElementById("xd"); if (!host) return;
     D.lock = false; clearTimeout(tm);
     if (D.i >= flat.length) return finish(host);
-    var f = cur(), dots = flat.map(function (x, j) { return '<i class="' + (j < D.i ? "d" : j === D.i ? "c" : "") + '"></i>'; }).join("");
+    var f = cur();
+    if (!D.seen[f.k]) { D.seen[f.k] = 1; return intro(host, f); }
+    D.miss = 0;
+    var dots = flat.map(function (x, j) { return '<i class="' + (j < D.i ? "d" : j === D.i ? "c" : "") + '"></i>'; }).join("");
     host.innerHTML = '<div class="xd-top"><button class="xb" data-x="axback" aria-label="回單元">←</button><div class="xd-dots">' + dots + '</div><button class="xb" data-x="axtip" aria-label="家長提示">💡</button></div>' +
       (D.tip ? '<div class="xd-tip">' + esc(D.d.tip) + "</div>" : "") + '<div class="xd-body k-' + f.k + '">' + drawBody(f) + "</div>";
     if (f.k === "trace") initTrace();
@@ -307,14 +313,49 @@
     if (f.k === "count") later(function () { say(f.q.au); }, 450);
     if (f.k === "paint" || f.k === "dots" || f.k === "build") later(function () { say(f.q.au); }, 450);
   }
-  function next(ms) { D.lock = true; later(function () { D.i++; draw(); }, ms || 1000); }
+  var INFO = {
+    pick: ["👆", "選一選", "聽一聽，點出對的圖。"], lpick: ["👆", "選一選", "聽聲音，點出對的圖。"], rpick: ["👆", "選一選", "聽一聽，點出一樣聲音的圖。"],
+    dots: ["🔵", "點點唸", "跟著唸，每唸一次點一個圓點。"], paint: ["🎨", "塗一塗", "選顏色，再點圖案塗上去。"],
+    match: ["🔗", "連連看", "先點左邊，再點右邊一樣的。"], lmatch: ["🔗", "連連看", "先點左邊，再點右邊一樣的。"], rmatch: ["🔗", "連連看", "先點左邊，再點右邊一樣的。"], capmatch: ["🔠", "大小寫配對", "先點大寫，再點一樣的小寫。"],
+    count: ["🔢", "數一數", "一個一個點，數一數，再選數字。"], trace: ["✏️", "描一描", "用手指沿著虛線描字母。"], build: ["🔤", "拼一拼", "照順序點字母，拼出單字。"], order: ["🔢", "排一排", "照順序一個一個點。"],
+    bingo: ["🎯", "賓果", "聽聲音，點出格子裡一樣的，連成一條線！"], hunt: ["🔍", "找找看", "找出所有一樣的，點一點。"], maze: ["🌀", "走迷宮", "只走指定的字母，走到終點！"],
+    wordfam: ["🧩", "換開頭", "換一個開頭字母，變成新的字。"], spinner: ["🎡", "轉轉盤", "轉一轉，唸出轉到的字。"], sort: ["🧺", "分一分", "把圖放進對的籃子。"],
+    bubble: ["🫧", "泡泡字母", "沿著泡泡字母描一描。"], dotdot: ["⭐", "點點成圖", "照順序一個一個連起來，變出圖案！"], colorby: ["🖍️", "字母塗色", "找到指定的字母，塗上顏色。"],
+    abc: ["🔤", "ABC 順序", "照 ABC 的順序點一點。"], teach: ["👀", "看一看", "先看一看、聽一聽，再來玩。"], disc: ["✔✖", "是不是", "聽一聽，是就點 ✔，不是就點 ✖。"]
+  };
+  function infoOf(k) { return INFO[k] || ["🎯", "玩一玩", "聽一聽，點一點。"]; }
+  function intro(host, f) {
+    var i = infoOf(f.k);
+    host.innerHTML = '<div class="xd-top"><button class="xb" data-x="axback" aria-label="回單元">←</button><div class="xd-dots"></div><span class="xb ghost"></span></div><div class="xd-intro"><div class="xi-ico">' + i[0] + '</div><div class="xi-t">' + esc(i[1]) + '</div><div class="xi-d">' + esc(i[2]) + '</div><button class="xbigplay" data-x="axgo" aria-label="開始">▶</button></div>';
+    D.lock = true; later(function () { if (A.speakZh) A.speakZh(i[1] + "。" + i[2]); }, 350);
+  }
+  X.axgo = function () { if (!D.lock && !document.querySelector(".xd-intro")) return; D.lock = false; try { speechSynthesis.cancel(); } catch (e) {} draw(false); };
+  var CHEERS = ["Great job!", "Yay!", "Wow!", "Super!", "You did it!", "Awesome!"], CZ = ["好棒！", "太厲害了！", "答對了！"];
+  function cheer() {
+    var host = document.getElementById("xd"); if (!host || !D) return;
+    var t = CHEERS[D.stars % CHEERS.length]; D.stars++;
+    var e = document.createElement("div"); e.className = "xcheer-pop"; e.innerHTML = "⭐ " + t; host.appendChild(e); setTimeout(function () { e.remove(); }, 1500);
+    A.speak(t, { queue: true, rate: 0.7 });
+    var bar = document.querySelector(".xd-dots .c"); if (bar) bar.classList.add("star");
+  }
+  function next(ms) {
+    D.lock = true; ms = ms || 1000;
+    if (window.MFE_FAST) ms = 60; else if (ms >= 800) { ms = Math.max(ms, 2000); clearTimeout(D.ct); D.ct = setTimeout(cheer, 1100); }
+    later(function () { D.i++; draw(); }, ms);
+  }
   function finish(host) {
     var c = A.kid(); c.plays.push({ unit: D.d.unit, act: "act", ts: Date.now() }); c.resist = []; A.save(); A.burst();
     host.innerHTML = '<div class="xd-end"><div class="xcheer">🎉</div><div class="xstars">⭐⭐⭐</div><div class="xend-t">Good job!</div><div class="xd-btns"><button class="xbtn" data-x="axagain">🔁</button><button class="xbtn" data-x="axnextv">▶</button><button class="xbtn" data-x="axback">🏠</button></div></div>';
     A.speak("Good job!");
   }
   function ok(el, au, ms) { el.classList.add("ok"); say(au); next(ms); }
-  function bad(el) { el.classList.add("no"); setTimeout(function () { el.classList.remove("no"); }, 500); }
+  function bad(el) {
+    el.classList.add("no"); setTimeout(function () { el.classList.remove("no"); }, 500);
+    if (!D) return; D.miss = (D.miss || 0) + 1;
+    var f = cur(), q = f && f.q;
+    if (D.miss === 1 && A.speakZh) setTimeout(function () { A.speakZh("再試一次"); }, 600);
+    if (D.miss >= 2 && q && q.ok != null) { var c = document.querySelector('.xo[data-i="' + q.ok + '"], [data-a="' + (q.pos ? 1 : 0) + '"]'); if (c) c.classList.add("hint"); }
+  }
 
   function backTo(u) { return LES[u] ? "unit/" + u : "units"; }
   X.axback = function () { clearTimeout(tm); A.go(backTo(D.d.unit)); };
@@ -385,6 +426,8 @@
     return '<div class="xd" id="xd"></div>';
   };
   window.MFE_AFTER.act = function (p) { start(p[1], p[2]); };
+  function kindsOf(unit) { var s = ACT[unit], out = []; if (!s) return out; var pl = s.plans ? [].concat.apply([], s.plans) : (s.plan || []); if (s.review) pl = (s.extra || []).concat(pl); pl.forEach(function (k) { if (out.indexOf(k) < 0 && KIND[k] || ['pick','lpick','rpick','dots','paint','match','lmatch','rmatch','count','trace','build','order'].indexOf(k) >= 0 && out.indexOf(k) < 0) out.push(k); }); return out; }
+  window.MFE_KINDS_OF = kindsOf; window.MFE_ACT_INFO = infoOf;
   window.MFE_GEN = gen;
   window.MFE_ACTKIND = KIND;
   window.MFE_ACTH = { rng: rng, hash: hash, shuf: shuf, rot: rot, derange: derange, words: words, fmt: fmt, pic: pic, esc: esc, say: say, later: later, next: next, bad: bad, cur: cur, D: function () { return D; }, dashLetter: dashLetter, opHtml: opHtml, A: A, W: W, ACT: ACT, LES: LES, X: X, NUMW: NUMW, gen: gen };
